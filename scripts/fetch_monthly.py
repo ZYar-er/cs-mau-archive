@@ -16,7 +16,6 @@ from pathlib import Path
 import requests
 
 API_URL = "https://api.steampowered.com/ICSGOServers_730/GetMonthlyPlayerCount/v1"
-CS2_CUTOFF = datetime(2023, 9, 27, tzinfo=timezone.utc)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data"

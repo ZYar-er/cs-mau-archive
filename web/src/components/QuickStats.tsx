@@ -12,7 +12,7 @@ export default function QuickStats({ records }: Props) {
   const latest = records[records.length - 1]?.mau ?? 0
   const cs2Peak = getVersionPeak('cs2')
   const yoy = getYoYGrowth()
-  const peakYear = getPeak()?.date.slice(0, 4) ?? ''
+  const peakYear = getPeak()?.date?.slice(0, 4) ?? ''
   const yoyPositive = yoy != null && Number(yoy) >= 0
 
   return (
