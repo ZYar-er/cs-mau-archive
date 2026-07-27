@@ -1,8 +1,8 @@
-name: Daily CS MAU Fetch
+name: Monthly CS MAU Fetch
 
 on:
   schedule:
-    - cron: "0 6 * * *"  # ~06:00 UTC daily
+    - cron: "0 9 1 * *"  # 1st, 09:00 UTC (API publishes 07:00 UTC; 2h margin)
   workflow_dispatch:       # allow manual trigger
 
 permissions:
@@ -23,8 +23,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Fetch daily MAU
-        run: python scripts/fetch_daily.py
+      - name: Fetch monthly MAU
+        run: python scripts/fetch_monthly.py
 
       - name: Commit and push if changed
         uses: stefanzweifel/git-auto-commit-action@v5
