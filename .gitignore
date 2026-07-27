@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 .env
 archive/
+node_modules/
+dist/
+*.local
+.DS_Store
