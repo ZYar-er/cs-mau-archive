@@ -1,15 +1,15 @@
 """
-Daily MAU fetcher for Counter-Strike.
+Monthly MAU fetcher for Counter-Strike.
 
 Calls the official Steam API endpoint that powers the counter-strike.net
-homepage player-count display and records the result.
+homepage player-count display and records the result. The API publishes
+monthly on the 1st at 07:00 UTC.
 
 Endpoint:
   https://api.steampowered.com/ICSGOServers_730/GetMonthlyPlayerCount/v1
 """
 
 import json
-import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -65,47 +65,59 @@ def save_json(path: Path, data: object) -> None:
 
 
 def main() -> None:
-    now = datetime.now(timezone.utc)
-    today_str = now.strftime("%Y-%m-%d")
-
     result = fetch_mau()
     if result is None:
         print("Failed to fetch MAU. Exiting.")
         return
 
     players = result.get("result", {}).get("players")
-    api_time = result.get("result", {}).get("time", today_str)
+    api_time = result.get("result", {}).get("time")
 
-    if players is None:
-        print("MAU not found in API response.")
+    if players is None or api_time is None:
+        print("MAU or time not found in API response.")
         return
 
     mau = int(players)
-    version = _game_version(now)
+    # API time is ISO-8601 UTC, e.g. "2026-07-01T07:00:00Z"
+    api_dt = datetime.fromisoformat(api_time.replace("Z", "+00:00"))
+    month_first = api_dt.strftime("%Y-%m-01")
+    version = _game_version(api_dt)
 
-    print(f"[{today_str}] MAU={mau:,}  game={version}  api_time={api_time}")
+    print(f"[API time {api_time}] MAU={mau:,}  month={month_first}  game={version}")
 
     record = {
-        "date": today_str,
+        "date": month_first,
         "mau": mau,
         "game_version": version,
         "source": "steam_api",
         "api_timestamp": api_time,
     }
 
-    # Append to daily.json
+    # Load daily.json and dedup by month (YYYY-MM)
     daily = load_json(DAILY_FILE)
     if daily is None:
         daily = []
     if not isinstance(daily, list):
         daily = [daily]
-    daily.append(record)
+
+    month_key = month_first[:7]  # YYYY-MM
+    updated = False
+    for i, entry in enumerate(daily):
+        if isinstance(entry, dict) and entry.get("date", "")[:7] == month_key:
+            daily[i] = record
+            updated = True
+            break
+    if not updated:
+        daily.append(record)
+
+    # Keep ascending by date
+    daily.sort(key=lambda r: r.get("date", ""))
     save_json(DAILY_FILE, daily)
 
     # Overwrite current.json
     save_json(CURRENT_FILE, record)
 
-    print(f"Saved. daily.json now has {len(daily)} entries.")
+    print(f"Saved. daily.json has {len(daily)} entries (updated={updated}).")
 
 
 if __name__ == "__main__":
