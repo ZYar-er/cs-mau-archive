@@ -20,11 +20,13 @@ const EVENTS = [
 
 const CS2_CUTOFF = '2023-09-27'
 
-type RangeBtn = '1Y' | '2Y' | 'cs2' | 'csgo' | null
+type RangeBtn = '1Y' | '2Y' | '3Y' | 'all' | 'cs2' | 'csgo' | null
 
 const RANGE_BUTTONS: { key: RangeBtn; label: string }[] = [
   { key: '1Y', label: '1Y' },
   { key: '2Y', label: '2Y' },
+  { key: '3Y', label: '3Y' },
+  { key: 'all', label: 'All' },
   { key: 'cs2', label: 'CS2' },
   { key: 'csgo', label: 'CS:GO' },
 ]
@@ -97,6 +99,16 @@ export default function MAUChart({ records }: Props) {
           startDate = new Date(lastTs - 2 * 365 * 24 * 60 * 60 * 1000)
             .toISOString()
             .slice(0, 10)
+          endDate = lastDate
+          break
+        case '3Y':
+          startDate = new Date(lastTs - 3 * 365 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .slice(0, 10)
+          endDate = lastDate
+          break
+        case 'all':
+          startDate = firstDate
           endDate = lastDate
           break
         case 'cs2':
