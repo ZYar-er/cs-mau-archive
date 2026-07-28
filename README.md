@@ -1,4 +1,4 @@
-# CS MAU Archive
+# CS MAU Tracker
 
 Historical monthly active users (MAU) for Counter-Strike (CS:GO → CS2), scraped from the official Steam API that powers [counter-strike.net](https://www.counter-strike.net/).
 

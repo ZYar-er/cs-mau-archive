@@ -8,7 +8,7 @@ export default function Header() {
         </svg>
         <div className="flex flex-col leading-none">
           <span className="text-base font-semibold uppercase tracking-[0.15em] text-steam-text">
-            CS MAU Archive
+            CS MAU Tracker
           </span>
           <span className="mt-0.5 text-[10px] uppercase tracking-[0.25em] text-steam-muted">
             Counter-Strike Monthly Active Users

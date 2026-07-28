@@ -5,7 +5,7 @@ export default function Footer() {
         <span>
           Data via Steam Web API &amp; Wayback Machine · Updated monthly
         </span>
-        <span>CS MAU Archive &copy; {new Date().getFullYear()}</span>
+        <span>CS MAU Tracker &copy; {new Date().getFullYear()}</span>
       </div>
     </footer>
   )
