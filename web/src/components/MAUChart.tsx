@@ -112,7 +112,7 @@ export default function MAUChart({ records }: Props) {
           endDate = lastDate
           break
         case 'cs2':
-          startDate = CS2_CUTOFF
+          startDate = '2023-08-01'
           endDate = lastDate
           break
         case 'csgo':
