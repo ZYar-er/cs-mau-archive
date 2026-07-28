@@ -39,7 +39,7 @@ export default function App() {
       <main className="flex-1 pb-8">
         <HeroSection latest={latest} yoyGrowth={yoyGrowth} count={count} />
         <QuickStats records={records} />
-        <div className="mt-6">
+        <div className="mt-4">
           <ChartSection records={records} />
         </div>
       </main>
