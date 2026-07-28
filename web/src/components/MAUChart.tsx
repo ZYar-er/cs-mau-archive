@@ -1,11 +1,7 @@
-import { useMemo, useState } from 'react'
-import { ParentSize } from '@visx/responsive'
-import { Group } from '@visx/group'
-import { AreaClosed, LinePath } from '@visx/shape'
-import { AxisBottom, AxisLeft } from '@visx/axis'
-import { ClipPath } from '@visx/clip-path'
-import { scaleTime, scaleLinear } from 'd3-scale'
-import { curveMonotoneX } from 'd3-shape'
+import { useRef, useEffect, useMemo } from 'react'
+import { init, getInstanceByDom } from 'echarts/core'
+import type { EChartsType } from 'echarts'
+import '../lib/echarts'
 import type { MAURecord } from '../types'
 import {
   getPeak,
@@ -13,16 +9,13 @@ import {
   getAvgMAU,
   getVersionPeak,
 } from '../lib/data'
-import { fmtNum, fmtMAU, fmtMonthShort } from '../lib/format'
-import { useBrush } from '../hooks/useBrush'
-import ChartBrush from './ChartBrush'
-import ChartTooltip from './ChartTooltip'
+import { fmtNum, fmtMAU } from '../lib/format'
 
 const EVENTS = [
-  { date: new Date('2012-08-21'), label: 'CS:GO', color: '#f5c542' },
-  { date: new Date('2018-12-06'), label: 'F2P', color: '#d97ed9' },
-  { date: new Date('2023-03-22'), label: 'CS2 Ann.', color: '#a4d007' },
-  { date: new Date('2023-09-27'), label: 'CS2', color: '#a4d007' },
+  { date: '2012-08-21', label: 'CS:GO', color: '#f5c542' },
+  { date: '2018-12-06', label: 'F2P', color: '#d97ed9' },
+  { date: '2023-03-22', label: 'CS2 Ann.', color: '#a4d007' },
+  { date: '2023-09-27', label: 'CS2', color: '#a4d007' },
 ] as const
 
 function movingAvg(data: number[], window: number): (number | null)[] {
@@ -33,11 +26,15 @@ function movingAvg(data: number[], window: number): (number | null)[] {
   })
 }
 
-interface ChartPoint {
-  date: Date
-  mau: number
-  ma6: number | null
-  record: MAURecord
+function areaGradient() {
+  return {
+    type: 'linear' as const,
+    x: 0, y: 0, x2: 0, y2: 1,
+    colorStops: [
+      { offset: 0, color: 'rgba(102, 192, 244, 0.25)' },
+      { offset: 1, color: 'rgba(102, 192, 244, 0.02)' },
+    ],
+  }
 }
 
 interface Props {
@@ -45,6 +42,191 @@ interface Props {
 }
 
 export default function MAUChart({ records }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const chartRef = useRef<EChartsType | null>(null)
+  const maxRef = useRef<number>(0)
+
+  const mauData: [Date, number][] = useMemo(
+    () => records.map((r) => [new Date(r.date), r.mau]),
+    [records],
+  )
+
+  const ma6Data = useMemo(() => {
+    const ma = movingAvg(
+      records.map((r) => r.mau),
+      6,
+    )
+    return records
+      .map((r, i) => (ma[i] != null ? [new Date(r.date), ma[i]!] : null))
+      .filter((v): v is [Date, number] => v != null)
+  }, [records])
+
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+
+    const existing = getInstanceByDom(el)
+    if (existing) existing.dispose()
+
+    const chart = init(el)
+    chartRef.current = chart
+
+    const initialMax = Math.max(...records.map((r) => r.mau)) * 1.1
+
+    const option: Record<string, unknown> = {
+      grid: { left: 56, right: 16, top: 18, bottom: 56 },
+      tooltip: {
+        trigger: 'axis' as const,
+        axisPointer: {
+          type: 'cross' as const,
+          snap: true,
+          crossStyle: { color: '#66c0f4' },
+        },
+        backgroundColor: '#16202d',
+        borderColor: '#2a3f5a',
+        textStyle: { color: '#c6d4df', fontSize: 12 },
+        formatter: (params: Array<{
+          axisValue: string
+          seriesName: string
+          value: [Date, number]
+        }>) => {
+          const p = params[0]
+          if (!p) return ''
+          const d = new Date(p.axisValue)
+          const fmt = (n: number) => n.toLocaleString('en-US')
+          const record = records.find(
+            (r) => new Date(r.date).getTime() === d.getTime(),
+          )
+          return `<div style="font-size:12px">
+            <div style="color:#66c0f4;margin-bottom:4px">${d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            <div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#66c0f4;margin-right:6px"></span>MAU: <span style="font-family:monospace;color:#c6d4df">${fmt(p.value[1])}</span></div>
+            ${params.length > 1 && params[1] ? `<div style="margin-top:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f5c542;margin-right:6px"></span>6-Month Avg: <span style="font-family:monospace;color:#c6d4df">${fmt(params[1].value[1])}</span></div>` : ''}
+            ${record ? `<div style="margin-top:4px;color:#8f98a0">${record.game_version.toUpperCase()}</div>` : ''}
+          </div>`
+        },
+      },
+      xAxis: {
+        type: 'time',
+        axisLine: { lineStyle: { color: '#2a3f5a' } },
+        axisLabel: { color: '#8f98a0', fontSize: 10 },
+        axisTick: { show: false },
+      },
+      yAxis: {
+        type: 'value',
+        min: 0,
+        max: initialMax,
+        axisLabel: {
+          color: '#8f98a0',
+          fontSize: 11,
+          formatter: (v: number) => fmtMAU(v),
+        },
+        splitLine: { lineStyle: { color: '#2a3f5a', type: 'dashed' as const } },
+      },
+      dataZoom: [
+        {
+          type: 'slider',
+          start: Math.max(0, ((records.length - 36) / records.length) * 100),
+          end: 100,
+          height: 28,
+          bottom: 8,
+          borderColor: '#316282',
+          fillerColor: 'rgba(102, 192, 244, 0.08)',
+          handleStyle: { color: '#66c0f4' },
+          textStyle: { color: '#8f98a0', fontSize: 11 },
+          moveHandleStyle: { color: '#66c0f4' },
+        },
+        { type: 'inside' as const },
+      ],
+      series: [
+        {
+          type: 'line',
+          name: 'MAU',
+          data: mauData,
+          smooth: true,
+          symbol: 'none' as const,
+          lineStyle: { color: '#66c0f4', width: 1.5 },
+          areaStyle: { color: areaGradient() },
+          markLine: {
+            symbol: 'none' as const,
+            silent: true,
+            data: EVENTS.map((ev) => ({
+              xAxis: ev.date,
+              label: {
+                show: true,
+                formatter: ev.label,
+                position: 'insideEndTop' as const,
+                color: ev.color,
+                fontSize: 10,
+              },
+              lineStyle: {
+                color: ev.color,
+                type: 'dashed' as const,
+                width: 1,
+              },
+            })),
+          },
+        },
+        {
+          type: 'line',
+          name: '6-Month Avg',
+          data: ma6Data,
+          smooth: true,
+          symbol: 'none' as const,
+          lineStyle: { color: '#f5c542', width: 1, type: 'dashed' as const },
+          areaStyle: undefined,
+        },
+      ],
+    }
+
+    chart.setOption(option)
+
+    // Y-axis auto-adapt to visible range
+    chart.on('dataZoom', () => {
+      const opt = chart.getOption() as {
+        dataZoom?: Array<{ startValue?: number; endValue?: number }>
+      }
+      const dz = opt.dataZoom?.[0]
+      if (!dz || dz.startValue == null || dz.endValue == null) return
+      const s = Number(dz.startValue)
+      const e = Number(dz.endValue)
+      const visible = records.filter((r) => {
+        const t = new Date(r.date).getTime()
+        return t >= s && t <= e
+      })
+      if (visible.length === 0) return
+      const visibleMax = Math.max(...visible.map((r) => r.mau))
+      const nextMax = visibleMax * 1.1
+      if (Math.abs(nextMax - maxRef.current) > 100) {
+        maxRef.current = nextMax
+        chart.setOption(
+          { yAxis: { min: 0, max: nextMax } },
+          { silent: true },
+        )
+      }
+    })
+
+    // Responsive resize
+    const ro = new ResizeObserver(() => chart.resize())
+    ro.observe(el)
+
+    return () => {
+      ro.disconnect()
+      chart.dispose()
+    }
+  }, [records, mauData, ma6Data])
+
+  // Bottom stats (computed over ALL records, unaffected by brush)
+  const maxMAU = getPeak()?.mau ?? 0
+  const minMAU = getMinMAU() ?? 0
+  const avgMAU = getAvgMAU() ?? 0
+  const csgoPeak = getVersionPeak('csgo')
+  const cs2Peak = getVersionPeak('cs2')
+
+  const startDate = records[0]?.date
+  const endDate = records[records.length - 1]?.date
+  const startYear = startDate ? new Date(startDate).getFullYear() : ''
+  const endYear = endDate ? new Date(endDate).getFullYear() : ''
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6">
       <div className="rounded-sm bg-steam-card px-4 py-5 shadow-steam ring-1 ring-steam-border/50 sm:px-6">
@@ -52,307 +234,35 @@ export default function MAUChart({ records }: Props) {
           <p className="text-xs uppercase tracking-wider text-steam-muted">
             MAU History
           </p>
+          <span className="text-xs text-steam-muted">
+            {startYear} → {endYear} · {records.length} mo
+          </span>
         </div>
-        <div style={{ height: 480 }}>
-          <ParentSize>
-            {({ width, height }) =>
-              width > 0 && height > 0 ? (
-                <ChartInner records={records} width={width} height={height} />
-              ) : null
-            }
-          </ParentSize>
+
+        <div ref={containerRef} style={{ width: '100%', height: 420 }} />
+
+        {/* Bottom stats */}
+        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-steam-border/50 pt-4 sm:grid-cols-5">
+          <Stat label="Peak" value={fmtNum(maxMAU)} />
+          <Stat label="Lowest" value={fmtNum(minMAU)} />
+          <Stat label="Average" value={fmtNum(avgMAU)} />
+          <Stat label="CS:GO Peak" value={fmtNum(csgoPeak)} />
+          <Stat label="CS2 Peak" value={fmtNum(cs2Peak)} />
         </div>
       </div>
     </div>
   )
 }
 
-function ChartInner({
-  records,
-  width,
-  height,
-}: {
-  records: MAURecord[]
-  width: number
-  height: number
-}) {
-  const brushH = 36
-  const margin = { top: 16, right: 16, bottom: 28, left: 56 }
-  const innerW = Math.max(0, width - margin.left - margin.right)
-  const innerH = Math.max(0, height - margin.top - margin.bottom - brushH - 8)
-
-  const { start, end, setStart, setEnd, clamp } = useBrush({
-    count: records.length,
-    initialStart: Math.max(0, records.length - 36),
-    initialEnd: records.length - 1,
-  })
-
-  const points: ChartPoint[] = useMemo(() => {
-    const ma = movingAvg(records.map((r) => r.mau), 6)
-    return records.map((r, i) => ({
-      date: new Date(r.date),
-      mau: r.mau,
-      ma6: ma[i],
-      record: r,
-    }))
-  }, [records])
-
-  const visiblePoints = points.slice(start, end + 1)
-
-  const maxMAU = Math.max(...records.map((r) => r.mau))
-  const xScale = useMemo(
-    () =>
-      scaleTime()
-        .domain([
-          new Date(records[start].date),
-          new Date(records[end].date),
-        ])
-        .range([0, innerW]),
-    [records, start, end, innerW],
-  )
-  const yScale = useMemo(
-    () =>
-      scaleLinear()
-        .domain([0, maxMAU * 1.1])
-        .range([innerH, 0]),
-    [maxMAU, innerH],
-  )
-
-  const [hoverIdx, setHoverIdx] = useState<number | null>(null)
-
-  const onMove = (e: React.PointerEvent<SVGRectElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = e.clientX - rect.left - margin.left
-    if (x < 0 || x > innerW) {
-      setHoverIdx(null)
-      return
-    }
-    const date = xScale.invert(x)
-    // nearest visible point
-    let nearest = 0
-    let best = Infinity
-    for (let i = start; i <= end; i++) {
-      const d = Math.abs(points[i].date.getTime() - date.getTime())
-      if (d < best) {
-        best = d
-        nearest = i
-      }
-    }
-    setHoverIdx(nearest)
-  }
-
-  // Path accessors
-  const lineGen = (d: ChartPoint) => xScale(d.date)
-  const lineY = (d: ChartPoint) => yScale(d.mau)
-  const maY = (d: ChartPoint) => (d.ma6 == null ? NaN : yScale(d.ma6))
-
-  // bottom stats
-  const maxMAUVal = getPeak()?.mau ?? 0
-  const minMAUVal = getMinMAU() ?? 0
-  const avgMAUVal = getAvgMAU() ?? 0
-  const csgoPeak = getVersionPeak('csgo')
-  const cs2Peak = getVersionPeak('cs2')
-  const hoverPoint = hoverIdx != null ? points[hoverIdx] : null
-
-  return (
-    <>
-      <svg width={width} height={height - brushH - 8}>
-        <ClipPath id="chart-clip">
-          <rect x={0} y={0} width={innerW} height={innerH} />
-        </ClipPath>
-        <Group top={margin.top} left={margin.left}>
-          {/* Grid: horizontal lines at 5 steps */}
-          {Array.from({ length: 5 }).map((_, i) => {
-            const v = (maxMAU * 1.1) * (i / 4)
-            const y = yScale(v)
-            return (
-              <line
-                key={i}
-                x1={0}
-                x2={innerW}
-                y1={y}
-                y2={y}
-                stroke="#2a3f5a"
-                strokeDasharray="3 3"
-                strokeWidth={1}
-              />
-            )
-          })}
-
-          {/* Event lines (raw SVG, always visible — no library brush-hiding) */}
-          {EVENTS.map((ev) => {
-            const x = xScale(ev.date)
-            if (x < 0 || x > innerW) return null
-            return (
-              <g key={ev.label}>
-                <line
-                  x1={x}
-                  x2={x}
-                  y1={0}
-                  y2={innerH}
-                  stroke={ev.color}
-                  strokeDasharray="4 3"
-                  strokeWidth={1}
-                />
-                <text
-                  x={x}
-                  y={-2}
-                  fill={ev.color}
-                  fontSize={10}
-                  textAnchor="middle"
-                >
-                  {ev.label}
-                </text>
-              </g>
-            )
-          })}
-
-          {/* MAU area */}
-          <AreaClosed<ChartPoint>
-            data={visiblePoints}
-            x={lineGen}
-            y={lineY}
-            yScale={yScale}
-            curve={curveMonotoneX}
-            fill="url(#mauAreaGrad)"
-            stroke="transparent"
-            clipPath="url(#chart-clip)"
-          />
-          {/* MAU line */}
-          <LinePath<ChartPoint>
-            data={visiblePoints}
-            x={lineGen}
-            y={lineY}
-            curve={curveMonotoneX}
-            stroke="#66c0f4"
-            strokeWidth={1.5}
-            clipPath="url(#chart-clip)"
-          />
-          {/* 6-month moving average */}
-          <LinePath<ChartPoint>
-            data={visiblePoints.filter((p) => p.ma6 != null)}
-            x={lineGen}
-            y={maY}
-            curve={curveMonotoneX}
-            stroke="#f5c542"
-            strokeWidth={1}
-            strokeDasharray="3 2"
-            clipPath="url(#chart-clip)"
-          />
-
-          {/* Axes */}
-          <AxisLeft
-            scale={yScale}
-            tickFormat={(d) => fmtMAU(+d)}
-            stroke="#2a3f5a"
-            tickStroke="#2a3f5a"
-            tickLabelProps={() => ({
-              fill: '#8f98a0',
-              fontSize: 11,
-              textAnchor: 'end',
-              dy: '0.33em',
-              dx: '-0.4em',
-            })}
-          />
-          <AxisBottom
-            scale={xScale}
-            top={innerH}
-            stroke="#2a3f5a"
-            tickStroke="#2a3f5a"
-            tickFormat={(d) => fmtMonthShort((d as Date).toISOString())}
-            tickLabelProps={() => ({
-              fill: '#8f98a0',
-              fontSize: 10,
-              textAnchor: 'middle',
-              dy: '0.33em',
-            })}
-          />
-
-          {/* Hover crosshair + dot */}
-          {hoverPoint && (
-            <g pointerEvents="none">
-              <line
-                x1={xScale(hoverPoint.date)}
-                x2={xScale(hoverPoint.date)}
-                y1={0}
-                y2={innerH}
-                stroke="#66c0f4"
-                strokeOpacity={0.4}
-                strokeWidth={1}
-              />
-              <circle
-                cx={xScale(hoverPoint.date)}
-                cy={yScale(hoverPoint.mau)}
-                r={4}
-                fill="#66c0f4"
-              />
-            </g>
-          )}
-
-          {/* Hover capture rect */}
-          <rect
-            x={0}
-            y={0}
-            width={innerW}
-            height={innerH}
-            fill="transparent"
-            onPointerMove={onMove}
-            onPointerLeave={() => setHoverIdx(null)}
-          />
-
-          {/* Gradient def */}
-          <defs>
-            <linearGradient id="mauAreaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#66c0f4" stopOpacity={0.25} />
-              <stop offset="100%" stopColor="#66c0f4" stopOpacity={0.02} />
-            </linearGradient>
-          </defs>
-        </Group>
-      </svg>
-
-      {/* Tooltip (HTML overlay) */}
-      {hoverPoint && (
-        <ChartTooltip
-          record={hoverPoint.record}
-          ma6={hoverPoint.ma6}
-          x={xScale(hoverPoint.date) + margin.left}
-          y={yScale(hoverPoint.mau) + margin.top}
-          width={width}
-        />
-      )}
-
-      {/* Brush */}
-      <div style={{ marginTop: 4, paddingLeft: margin.left, paddingRight: margin.right }}>
-        <ChartBrush
-          records={records}
-          start={start}
-          end={end}
-          onChange={(ns, ne) => {
-            const [s, e] = clamp(ns, ne)
-            setStart(s)
-            setEnd(e)
-          }}
-          height={brushH}
-        />
-      </div>
-
-      {/* Bottom stats */}
-      <div className="mt-4 grid grid-cols-2 gap-3 border-t border-steam-border/50 pt-4 sm:grid-cols-5">
-        <Stat label="Peak" value={fmtNum(maxMAUVal)} />
-        <Stat label="Lowest" value={fmtNum(minMAUVal)} />
-        <Stat label="Average" value={fmtNum(avgMAUVal)} />
-        <Stat label="CS:GO Peak" value={fmtNum(csgoPeak)} />
-        <Stat label="CS2 Peak" value={fmtNum(cs2Peak)} />
-      </div>
-    </>
-  )
-}
-
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="text-center">
-      <p className="text-xs uppercase tracking-wider text-steam-muted">{label}</p>
-      <p className="mt-0.5 text-base font-semibold text-steam-text">{value}</p>
+      <p className="text-xs uppercase tracking-wider text-steam-muted">
+        {label}
+      </p>
+      <p className="mt-0.5 text-base font-semibold text-steam-text">
+        {value}
+      </p>
     </div>
   )
 }
