@@ -12,17 +12,17 @@ export default function HeroSection({ latest, yoyGrowth, count }: Props) {
   const yoyPositive = yoyGrowth != null && Number(yoyGrowth) >= 0
 
   return (
-    <div className="mx-auto mt-6 max-w-7xl px-4 sm:px-6">
-      <div className="flex flex-col gap-4 lg:flex-row">
+    <div className="mx-auto mt-4 max-w-7xl px-4 sm:px-6">
+      <div className="flex flex-col gap-3 lg:flex-row">
         {/* Hero MAU */}
-        <div className="flex-1 overflow-hidden rounded-sm bg-gradient-to-b from-steam-elevated to-steam-bg px-6 py-6 shadow-steam-lg ring-1 ring-steam-border/50">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.25em] text-steam-muted">
+        <div className="flex-1 overflow-hidden rounded-sm bg-gradient-to-b from-steam-elevated to-steam-bg px-5 py-4 shadow-steam-lg ring-1 ring-steam-border/50">
+          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.25em] text-steam-muted">
             Monthly Active Users
           </p>
-          <p className="text-5xl font-bold tracking-tight text-steam-blue sm:text-6xl">
+          <p className="text-4xl font-bold tracking-tight text-steam-blue sm:text-5xl">
             {fmtNum(latest.mau)}
           </p>
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-steam-muted">
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-steam-muted">
             <span>as of {fmtDate(latest.date)}</span>
             {yoyGrowth && (
               <span
@@ -38,27 +38,27 @@ export default function HeroSection({ latest, yoyGrowth, count }: Props) {
         </div>
 
         {/* Meta sidebar */}
-        <div className="flex flex-col gap-3 sm:flex-row lg:w-80 lg:flex-col">
-          <div className="flex-1 rounded-sm bg-steam-card px-5 py-4 shadow-steam ring-1 ring-steam-border/50">
+        <div className="flex flex-col gap-3 sm:flex-row lg:w-72 lg:flex-col">
+          <div className="flex-1 rounded-sm bg-steam-card px-4 py-3 shadow-steam ring-1 ring-steam-border/50">
             <p className="text-xs uppercase tracking-wider text-steam-muted">Game</p>
-            <p className="mt-1 text-2xl font-bold uppercase tracking-wide text-steam-text">
+            <p className="mt-1 text-xl font-bold uppercase tracking-wide text-steam-text">
               {latest.game_version}
             </p>
-            <p className="mt-1 text-xs text-steam-muted">
+            <p className="mt-0.5 text-xs text-steam-muted">
               source: {latest.source}
             </p>
           </div>
-          <div className="flex-1 rounded-sm bg-steam-card px-5 py-4 shadow-steam ring-1 ring-steam-border/50">
+          <div className="flex-1 rounded-sm bg-steam-card px-4 py-3 shadow-steam ring-1 ring-steam-border/50">
             <p className="text-xs uppercase tracking-wider text-steam-muted">Archive</p>
-            <p className="mt-1 text-2xl font-bold text-steam-text">{count}</p>
-            <p className="mt-1 text-xs text-steam-muted">
+            <p className="mt-1 text-xl font-bold text-steam-text">{count}</p>
+            <p className="mt-0.5 text-xs text-steam-muted">
               records · 2013–{endYear}
             </p>
           </div>
           {latest.api_timestamp && (
-            <div className="flex-1 rounded-sm bg-steam-card px-5 py-4 shadow-steam ring-1 ring-steam-border/50">
+            <div className="flex-1 rounded-sm bg-steam-card px-4 py-3 shadow-steam ring-1 ring-steam-border/50">
               <p className="text-xs uppercase tracking-wider text-steam-muted">API Updated</p>
-              <p className="mt-1 text-sm font-medium text-steam-text">
+              <p className="mt-1 text-xs font-medium text-steam-text">
                 {fmtTimestamp(latest.api_timestamp)}
               </p>
             </div>
