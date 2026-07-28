@@ -1,4 +1,4 @@
-import { useRef, useEffect, useMemo } from 'react'
+import { useRef, useEffect, useMemo, useState, useCallback } from 'react'
 import { init, getInstanceByDom } from 'echarts/core'
 import type { EChartsType } from 'echarts'
 import '../lib/echarts'
@@ -17,6 +17,17 @@ const EVENTS = [
   { date: '2023-03-22', label: 'CS2 Ann.', color: '#a4d007' },
   { date: '2023-09-27', label: 'CS2', color: '#a4d007' },
 ] as const
+
+const CS2_CUTOFF = '2023-09-27'
+
+type RangeBtn = '1Y' | '2Y' | 'cs2' | 'csgo' | null
+
+const RANGE_BUTTONS: { key: RangeBtn; label: string }[] = [
+  { key: '1Y', label: '1Y' },
+  { key: '2Y', label: '2Y' },
+  { key: 'cs2', label: 'CS2' },
+  { key: 'csgo', label: 'CS:GO' },
+]
 
 function movingAvg(data: number[], window: number): (number | null)[] {
   return data.map((_, i) => {
@@ -45,6 +56,8 @@ export default function MAUChart({ records }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<EChartsType | null>(null)
   const maxRef = useRef<number>(0)
+  const [activeRange, setActiveRange] = useState<RangeBtn>(null)
+  const zoomingFromBtn = useRef(false)
 
   const mauData: [Date, number][] = useMemo(
     () => records.map((r) => [new Date(r.date), r.mau]),
@@ -60,6 +73,54 @@ export default function MAUChart({ records }: Props) {
       .map((r, i) => (ma[i] != null ? [new Date(r.date), ma[i]!] : null))
       .filter((v): v is [Date, number] => v != null)
   }, [records])
+
+  const handleRangeZoom = useCallback(
+    (range: RangeBtn) => {
+      const chart = chartRef.current
+      if (!chart) return
+
+      const lastDate = records[records.length - 1]?.date
+      const firstDate = records[0]?.date
+      if (!lastDate || !firstDate) return
+      const lastTs = new Date(lastDate).getTime()
+
+      let startDate: string
+      let endDate: string
+      switch (range) {
+        case '1Y':
+          startDate = new Date(lastTs - 365 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .slice(0, 10)
+          endDate = lastDate
+          break
+        case '2Y':
+          startDate = new Date(lastTs - 2 * 365 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .slice(0, 10)
+          endDate = lastDate
+          break
+        case 'cs2':
+          startDate = CS2_CUTOFF
+          endDate = lastDate
+          break
+        case 'csgo':
+          startDate = firstDate
+          endDate = CS2_CUTOFF
+          break
+        default:
+          return
+      }
+
+      zoomingFromBtn.current = true
+      chart.dispatchAction({
+        type: 'dataZoom',
+        startValue: new Date(startDate).getTime(),
+        endValue: new Date(endDate).getTime(),
+      })
+      setActiveRange(range)
+    },
+    [records],
+  )
 
   useEffect(() => {
     const el = containerRef.current
@@ -182,6 +243,10 @@ export default function MAUChart({ records }: Props) {
 
     // Y-axis auto-adapt to visible range
     chart.on('dataZoom', () => {
+      if (!zoomingFromBtn.current) {
+        setActiveRange(null)
+      }
+      zoomingFromBtn.current = false
       const opt = chart.getOption() as {
         dataZoom?: Array<{ startValue?: number; endValue?: number }>
       }
@@ -237,6 +302,23 @@ export default function MAUChart({ records }: Props) {
           <span className="text-xs text-steam-muted">
             {startYear} → {endYear} · {records.length} mo
           </span>
+        </div>
+
+        {/* Quick range buttons */}
+        <div className="mb-3 flex items-center gap-1.5">
+          {RANGE_BUTTONS.map((btn) => (
+            <button
+              key={btn.key}
+              onClick={() => handleRangeZoom(btn.key)}
+              className={`rounded-sm px-2.5 py-0.5 text-xs transition-colors ${
+                activeRange === btn.key
+                  ? 'bg-steam-control text-steam-text'
+                  : 'bg-steam-card text-steam-muted hover:text-steam-text hover:bg-steam-control/50 ring-1 ring-steam-border/50'
+              }`}
+            >
+              {btn.label}
+            </button>
+          ))}
         </div>
 
         <div ref={containerRef} style={{ width: '100%', height: 420 }} />
