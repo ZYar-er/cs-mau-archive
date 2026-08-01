@@ -3,14 +3,15 @@ Monthly MAU fetcher for Counter-Strike.
 
 Calls the official Steam API endpoint that powers the counter-strike.net
 homepage player-count display and records the result. The API publishes
-monthly on the 1st at 07:00 UTC.
+on the 1st at 07:00 UTC, reporting the **previous** month's data.
+(e.g. the July 1 response reports June's MAU).
 
 Endpoint:
   https://api.steampowered.com/ICSGOServers_730/GetMonthlyPlayerCount/v1
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
 import requests
@@ -78,8 +79,10 @@ def main() -> None:
 
     mau = int(players)
     # API time is ISO-8601 UTC, e.g. "2026-07-01T07:00:00Z"
+    # Published on the 1st; data is for the PREVIOUS month → "2026-06-01"
     api_dt = datetime.fromisoformat(api_time.replace("Z", "+00:00"))
-    month_first = api_dt.strftime("%Y-%m-01")
+    data_dt = (api_dt.replace(day=1) - timedelta(days=1)).replace(day=1)
+    month_first = data_dt.strftime("%Y-%m-01")
     version = _game_version(api_dt)
 
     print(f"[API time {api_time}] MAU={mau:,}  month={month_first}  game={version}")
