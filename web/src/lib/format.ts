@@ -11,13 +11,13 @@ export function fmtDate(iso: string): string {
 }
 
 export function fmtTimestamp(iso: string): string {
-  const d = new Date(iso)
-  return d.toLocaleString('en-US', {
+  return new Date(iso).toLocaleString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    timeZone: 'UTC',
     timeZoneName: 'short',
   })
 }
