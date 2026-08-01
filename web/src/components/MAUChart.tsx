@@ -222,21 +222,44 @@ export default function MAUChart({ records }: Props) {
           markLine: {
             symbol: 'none' as const,
             silent: true,
-            data: EVENTS.map((ev) => ({
-              xAxis: ev.date,
-              label: {
-                show: true,
-                formatter: ev.label,
-                position: 'insideEndTop' as const,
-                color: ev.color,
-                fontSize: 10,
-              },
-              lineStyle: {
-                color: ev.color,
-                type: 'dashed' as const,
-                width: 1,
-              },
-            })),
+            data: [
+              ...EVENTS.map((ev) => ({
+                xAxis: ev.date,
+                label: {
+                  show: true,
+                  formatter: ev.label,
+                  position: 'insideEndTop' as const,
+                  color: ev.color,
+                  fontSize: 10,
+                },
+                lineStyle: {
+                  color: ev.color,
+                  type: 'dashed' as const,
+                  width: 1,
+                },
+              })),
+              (() => {
+                const peak = getPeak()
+                return {
+                  name: 'Peak',
+                  xAxis: peak?.date ?? '',
+                  label: {
+                    show: true,
+                    formatter: peak
+                      ? `Peak · ${fmtMAU(peak.mau)}`
+                      : 'Peak',
+                    position: 'insideEndTop' as const,
+                    color: '#ff6b6b',
+                    fontSize: 10,
+                  },
+                  lineStyle: {
+                    color: '#ff6b6b',
+                    type: 'dashed' as const,
+                    width: 1,
+                  },
+                }
+              })(),
+            ],
           },
         },
         {
