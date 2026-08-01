@@ -4,12 +4,14 @@ import { fmtNum, fmtDate, fmtTimestamp } from '../lib/format'
 interface Props {
   latest: MAURecord
   yoyGrowth: string | null
+  momGrowth: string | null
   count: number
 }
 
-export default function HeroSection({ latest, yoyGrowth, count }: Props) {
+export default function HeroSection({ latest, yoyGrowth, momGrowth, count }: Props) {
   const endYear = new Date(latest.date).getFullYear()
   const yoyPositive = yoyGrowth != null && Number(yoyGrowth) >= 0
+  const momPositive = momGrowth != null && Number(momGrowth) >= 0
 
   return (
     <div className="mx-auto mt-4 max-w-7xl px-4 sm:px-6">
@@ -24,6 +26,16 @@ export default function HeroSection({ latest, yoyGrowth, count }: Props) {
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-steam-muted">
             <span>as of {fmtDate(latest.date)}</span>
+            {momGrowth && (
+              <span
+                className={
+                  momPositive ? 'text-steam-green' : 'text-red-400'
+                }
+              >
+                {momPositive ? '+' : ''}
+                {momGrowth}% MoM
+              </span>
+            )}
             {yoyGrowth && (
               <span
                 className={

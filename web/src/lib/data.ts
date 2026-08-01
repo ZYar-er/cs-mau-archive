@@ -47,6 +47,17 @@ export function getYoYGrowth(): string | null {
   return (((latest.mau - prevYear.mau) / prevYear.mau) * 100).toFixed(1)
 }
 
+export function getMoMGrowth(): string | null {
+  const latest = getLatest()
+  if (!latest || records.length < 2) return null
+
+  // Previous month is the record immediately before the latest
+  const prev = records[records.length - 2]
+  if (!prev) return null
+
+  return (((latest.mau - prev.mau) / prev.mau) * 100).toFixed(1)
+}
+
 export function getPeak(): MAURecord | null {
   if (records.length === 0) return null
   return records.reduce((a, b) => (b.mau > a.mau ? b : a))

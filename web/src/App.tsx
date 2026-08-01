@@ -3,7 +3,7 @@ import Footer from './components/Footer'
 import HeroSection from './components/HeroSection'
 import QuickStats from './components/QuickStats'
 import ChartSection from './components/ChartSection'
-import { getLatest, getAll, getYoYGrowth, getCount } from './lib/data'
+import { getLatest, getAll, getYoYGrowth, getMoMGrowth, getCount } from './lib/data'
 
 export default function App() {
   const latest = getLatest()
@@ -31,13 +31,14 @@ export default function App() {
   }
 
   const yoyGrowth = getYoYGrowth()
+  const momGrowth = getMoMGrowth()
   const count = getCount()
 
   return (
     <div className="flex min-h-screen flex-col bg-steam-bg">
       <Header />
       <main className="flex-1 pb-8">
-        <HeroSection latest={latest} yoyGrowth={yoyGrowth} count={count} />
+        <HeroSection latest={latest} yoyGrowth={yoyGrowth} momGrowth={momGrowth} count={count} />
         <QuickStats records={records} />
         <div className="mt-4">
           <ChartSection records={records} />
