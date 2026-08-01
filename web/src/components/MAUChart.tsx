@@ -147,6 +147,7 @@ export default function MAUChart({ records }: Props) {
     const initialMax = Math.max(...records.map((r) => r.mau)) * 1.1
 
     const option: Record<string, unknown> = {
+      animation: false,
       grid: { left: 56, right: 16, top: 18, bottom: 56 },
       tooltip: {
         trigger: 'axis' as const,
