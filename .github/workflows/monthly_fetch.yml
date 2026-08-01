@@ -29,7 +29,10 @@ jobs:
       - name: Commit and push if changed
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "data: update MAU [skip ci]"
+          # NOTE: no "[skip ci]" — Cloudflare Pages skips builds on that marker,
+          # which would prevent the site from ever seeing fresh data. The
+          # workflow has no `on: push` trigger, so no loop risk.
+          commit_message: "data: update MAU"
           file_pattern: "data/*.json"
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"
