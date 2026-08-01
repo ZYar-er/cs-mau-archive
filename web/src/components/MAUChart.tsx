@@ -147,7 +147,6 @@ export default function MAUChart({ records }: Props) {
     const initialMax = Math.max(...records.map((r) => r.mau)) * 1.1
 
     const option: Record<string, unknown> = {
-      animation: false,
       grid: { left: 56, right: 16, top: 18, bottom: 56 },
       tooltip: {
         trigger: 'axis' as const,
@@ -220,9 +219,19 @@ export default function MAUChart({ records }: Props) {
           symbol: 'none' as const,
           lineStyle: { color: '#66c0f4', width: 1.5 },
           areaStyle: { color: areaGradient() },
+        },
+        {
+          // Dedicated empty series for markLine only — animation disabled so
+          // event/peak lines never animate when entering/leaving the brush view.
+          type: 'line',
+          name: 'Marks',
+          data: [],
+          symbol: 'none' as const,
+          animation: false,
           markLine: {
             symbol: 'none' as const,
             silent: true,
+            animation: false,
             data: [
               ...EVENTS.map((ev) => ({
                 xAxis: ev.date,
