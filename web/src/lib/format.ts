@@ -2,7 +2,8 @@ export function fmtNum(n: number): string {
   return n.toLocaleString('en-US')
 }
 
-export function fmtDate(iso: string): string {
+export function fmtDate(iso: string, locale = 'en-US'): string {
+  if (locale.startsWith('zh')) return iso.slice(0, 10)
   return new Date(iso).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',

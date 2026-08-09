@@ -6,12 +6,15 @@ import {
   getYoYGrowth,
 } from '../lib/data'
 import { fmtNum } from '../lib/format'
+import { useI18n } from '../lib/i18n'
 
 interface Props {
   records: MAURecord[]
 }
 
 export default function QuickStats({ records }: Props) {
+  const { t } = useI18n()
+
   const peak = getPeak()?.mau ?? 0
   const avg = getVersionAvgMAU('cs2')
   const latest = records[records.length - 1]?.mau ?? 0
@@ -28,28 +31,28 @@ export default function QuickStats({ records }: Props) {
   return (
     <div className="grid grid-cols-2 gap-2">
       <Card
-        label="Peak"
+        label={t('peak')}
         value={fmtNum(peak)}
         sub={peakMonth}
         color="text-steam-blue"
         highlight
       />
-      <Card label="CS2 Average" value={avg != null ? fmtNum(avg) : '—'} />
-      <Card label="Latest" value={fmtNum(latest)} />
+      <Card label={t('cs2Average')} value={avg != null ? fmtNum(avg) : '—'} />
+      <Card label={t('latest')} value={fmtNum(latest)} />
       <Card
-        label="CS:GO Peak"
+        label={t('csgoPeak')}
         value={csgoPeak != null ? fmtNum(csgoPeak) : '—'}
         sub={csgoPeakMonth}
       />
       <Card
-        label="CS2 Peak"
+        label={t('cs2Peak')}
         value={cs2Peak != null ? fmtNum(cs2Peak) : '—'}
         sub={cs2PeakMonth}
         color="text-steam-green"
       />
       {yoy && (
         <Card
-          label="YoY"
+          label={t('yoy')}
           value={`${yoyPositive ? '+' : ''}${yoy}%`}
           color={yoyPositive ? 'text-steam-green' : 'text-red-400'}
         />
@@ -73,18 +76,18 @@ function Card({
 }) {
   return (
     <div
-      className={`flex flex-col items-center justify-center rounded-sm bg-steam-card px-2 py-1.5 text-center shadow-steam ring-1 ${
+      className={`flex flex-col items-center justify-center rounded-sm bg-steam-card px-2 py-1.5 text-center shadow-steam ring-1 sm:min-h-[72px] ${
         highlight ? 'ring-steam-blue/40' : 'ring-steam-border/50'
       }`}
     >
-      <p className="text-[10px] uppercase tracking-wider text-steam-muted">
+      <p className="text-[10px] uppercase tracking-wider text-steam-muted sm:text-xs">
         {label}
       </p>
-      <p className={`mt-0.5 text-sm font-bold tabular-nums ${color ?? 'text-steam-text'}`}>
+      <p className={`mt-0.5 text-sm font-bold tabular-nums sm:text-base ${color ?? 'text-steam-text'}`}>
         {value}
       </p>
       {sub && (
-        <p className="mt-0.5 text-[10px] tabular-nums text-steam-muted">
+        <p className="mt-0.5 text-[11px] tabular-nums text-steam-muted sm:text-xs">
           {sub}
         </p>
       )}

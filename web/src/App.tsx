@@ -3,8 +3,10 @@ import Footer from './components/Footer'
 import HeroSection from './components/HeroSection'
 import ChartSection from './components/ChartSection'
 import { getLatest, getAll, getYoYGrowth, getMoMGrowth, getCount } from './lib/data'
+import { useI18n } from './lib/i18n'
 
 export default function App() {
+  const { t } = useI18n()
   const latest = getLatest()
   const records = getAll()
 
@@ -14,13 +16,13 @@ export default function App() {
         <Header />
         <main className="flex flex-1 items-center justify-center">
           <div className="text-center text-steam-muted">
-            <p className="text-lg">No data available</p>
-            <p className="mt-1 text-sm">
-              Run{' '}
+            <p className="text-lg sm:text-xl">{t('noData')}</p>
+            <p className="mt-1 text-sm sm:text-base">
+              {t('syncHint').split('{cmd}')[0]}
               <code className="rounded bg-steam-card px-1 py-0.5 text-xs">
                 npm run predev
               </code>{' '}
-              to sync data files.
+              {t('syncHint').split('{cmd}')[1]}
             </p>
           </div>
         </main>

@@ -1,4 +1,8 @@
+import { useI18n } from '../lib/i18n'
+
 export default function Header() {
+  const { t, lang, setLang } = useI18n()
+
   return (
     <header className="bg-steam-nav pt-[env(safe-area-inset-top)] shadow-steam-lg">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
@@ -7,19 +11,27 @@ export default function Header() {
           <path d="M6 5l4.5 3L6 11V5z" fill="#66c0f4" />
         </svg>
         <div className="flex flex-col leading-none">
-          <span className="text-sm font-semibold uppercase tracking-[0.12em] text-steam-text min-[420px]:text-base">
+          <span className="text-sm font-semibold uppercase tracking-[0.12em] text-steam-text min-[420px]:text-base sm:text-lg">
             CS MAU Tracker
           </span>
-          <span className="mt-0.5 hidden text-[10px] uppercase tracking-[0.25em] text-steam-muted min-[420px]:block">
-            Counter-Strike Monthly Active Users
+          <span className="mt-0.5 hidden text-[10px] uppercase tracking-[0.25em] text-steam-muted min-[420px]:block sm:text-xs">
+            {t('subtitle')}
           </span>
         </div>
-        <div className="ml-auto flex items-center gap-2 text-xs text-steam-muted sm:gap-3">
+        <div className="ml-auto flex items-center gap-2 text-xs text-steam-muted sm:gap-3 sm:text-sm">
+          <button
+            type="button"
+            onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
+            aria-label={lang === 'en' ? 'Switch to Chinese' : 'Switch to English'}
+            className="rounded-sm bg-steam-card px-2 py-2 uppercase tracking-wider transition-colors hover:bg-steam-control/50 hover:text-steam-text"
+          >
+            {lang === 'en' ? '中文' : 'EN'}
+          </button>
           <a
             href="https://github.com/ZYar-er/cs-mau-archive"
             target="_blank"
             rel="noreferrer"
-            aria-label="GitHub repository"
+            aria-label={t('githubAria')}
             className="flex items-center gap-1.5 rounded-sm bg-steam-card px-2 py-2 transition-colors hover:bg-steam-control/50 hover:text-steam-text"
           >
             <svg viewBox="0 0 16 16" className="h-4 w-4" fill="currentColor" aria-hidden="true">
