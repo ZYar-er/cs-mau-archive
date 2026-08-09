@@ -22,7 +22,7 @@ export default function Header() {
           <button
             type="button"
             onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
-            aria-label={lang === 'en' ? 'Switch to Chinese' : 'Switch to English'}
+            aria-label={lang === 'en' ? t('switchToZh') : t('switchToEn')}
             className="rounded-sm bg-steam-card px-2 py-2 uppercase tracking-wider transition-colors hover:bg-steam-control/50 hover:text-steam-text"
           >
             {lang === 'en' ? '中文' : 'EN'}

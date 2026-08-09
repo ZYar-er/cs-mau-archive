@@ -69,6 +69,12 @@ export function getVersionMinMAU(version: string): number | null {
   return Math.min(...versionRecords.map((r) => r.mau))
 }
 
+export function getVersionMinRecord(version: string): MAURecord | null {
+  const versionRecords = records.filter((r) => r.game_version === version)
+  if (versionRecords.length === 0) return null
+  return versionRecords.reduce((a, b) => (b.mau < a.mau ? b : a))
+}
+
 export function getAvgMAU(): number | null {
   if (records.length === 0) return null
   return Math.round(records.reduce((s, r) => s + r.mau, 0) / records.length)

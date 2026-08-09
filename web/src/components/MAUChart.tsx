@@ -127,8 +127,8 @@ function responsiveOverlay(width: number, t: Translator) {
       top: 18,
       bottom: compact ? 66 : 62,
     },
-    xAxis: { axisLabel: { fontSize: compact ? 9 : 10 } },
-    yAxis: { axisLabel: { fontSize: compact ? 9 : 11 } },
+    xAxis: { axisLabel: { fontSize: compact ? 9 : 11 } },
+    yAxis: { axisLabel: { fontSize: compact ? 9 : 12 } },
     dataZoom: [
       sliderConfig(compact),
       { type: 'inside' as const, moveOnTouchMove: !compact },
@@ -179,6 +179,7 @@ export default function MAUChart({ records }: Props) {
   const widthBucketRef = useRef<'compact' | 'wide' | null>(null)
   const [activeRange, setActiveRange] = useState<RangeBtn>(null)
   const zoomingFromBtn = useRef(false)
+  const snapRef = useRef(false)
 
   const mauData: [Date, number][] = useMemo(
     () => records.map((r) => [new Date(r.date), r.mau]),
@@ -242,6 +243,10 @@ export default function MAUChart({ records }: Props) {
           return
       }
 
+      // Records are always on the 1st of the month; snap the window start so
+      // the first tick/label sits flush against the y-axis.
+      startDate = `${startDate.slice(0, 7)}-01`
+
       zoomingFromBtn.current = true
       chart.dispatchAction({
         type: 'dataZoom',
@@ -274,6 +279,7 @@ export default function MAUChart({ records }: Props) {
     const initialMax = Math.max(...records.map((r) => r.mau)) * 1.1
 
     const option: Record<string, unknown> = {
+      useUTC: true,
       grid: {
         left: compact ? 12 : 56,
         right: compact ? 8 : 16,
@@ -322,7 +328,23 @@ export default function MAUChart({ records }: Props) {
       xAxis: {
         type: 'time',
         axisLine: { lineStyle: { color: '#2a3f5a' } },
-        axisLabel: { color: '#8f98a0', fontSize: compact ? 9 : 11 },
+        axisLabel: {
+          color: '#8f98a0',
+          fontSize: compact ? 9 : 11,
+          hideOverlap: true,
+          showMinLabel: true,
+          showMaxLabel: true,
+          alignMinLabel: 'left',
+          alignMaxLabel: 'right',
+          formatter: (value: number) => {
+            const d = new Date(value)
+            const year = d.getUTCFullYear()
+            const month = d.getUTCMonth() + 1
+            const day = d.getUTCDate()
+            if (month === 1 && day === 1) return String(year)
+            return `${year}/${String(month).padStart(2, '0')}`
+          },
+        },
         axisTick: { show: false },
       },
       yAxis: {
@@ -339,8 +361,10 @@ export default function MAUChart({ records }: Props) {
       dataZoom: [
         {
           ...sliderConfig(compact),
-          start: Math.max(0, ((records.length - 36) / records.length) * 100),
-          end: 100,
+          startValue: new Date(
+            records[Math.max(0, records.length - 36)].date,
+          ).getTime(),
+          endValue: new Date(records[records.length - 1].date).getTime(),
         },
         { type: 'inside' as const, moveOnTouchMove: !compact },
       ],
@@ -376,7 +400,8 @@ export default function MAUChart({ records }: Props) {
 
     // Y-axis auto-adapt to visible range
     chart.on('dataZoom', () => {
-      if (!zoomingFromBtn.current) {
+      const fromBtn = zoomingFromBtn.current
+      if (!fromBtn) {
         setActiveRange(null)
       }
       zoomingFromBtn.current = false
@@ -387,6 +412,26 @@ export default function MAUChart({ records }: Props) {
       if (!dz || dz.startValue == null || dz.endValue == null) return
       const s = Number(dz.startValue)
       const e = Number(dz.endValue)
+
+      // Expand manual zoom windows outward to whole months: floor the left
+      // edge and ceil the right edge, so more data is shown instead of
+      // shrinking the window. Button-driven windows are already aligned.
+      if (!fromBtn && !snapRef.current) {
+        const sSnap = snapRecordTs(s, 'floor')
+        const eSnap = snapRecordTs(e, 'ceil')
+        if (sSnap !== s || eSnap !== e) {
+          snapRef.current = true
+          chart.dispatchAction({
+            type: 'dataZoom',
+            startValue: sSnap,
+            endValue: eSnap,
+          })
+          return
+        }
+      } else {
+        snapRef.current = false
+      }
+
       const visible = records.filter((r) => {
         const t = new Date(r.date).getTime()
         return t >= s && t <= e
@@ -402,6 +447,21 @@ export default function MAUChart({ records }: Props) {
         )
       }
     })
+
+    const snapRecordTs = (ts: number, dir: 'floor' | 'ceil') => {
+      const times = records.map((r) => new Date(r.date).getTime())
+      if (dir === 'floor') {
+        let best = times[0]
+        for (const t of times) {
+          if (t <= ts) best = t
+        }
+        return best
+      }
+      for (const t of times) {
+        if (t >= ts) return t
+      }
+      return times[times.length - 1]
+    }
 
     // Responsive resize
     const ro = new ResizeObserver(() => {
@@ -448,12 +508,12 @@ export default function MAUChart({ records }: Props) {
         </div>
 
         {/* Quick range buttons */}
-        <div className="mb-2 flex items-center gap-1 sm:gap-1.5">
+        <div className="mb-2 flex flex-wrap items-center gap-1 sm:gap-1.5">
           {RANGE_BUTTONS.map((btn) => (
             <button
               key={btn.key}
               onClick={() => handleRangeZoom(btn.key)}
-              className={`flex-1 whitespace-nowrap rounded-sm px-2.5 py-2 text-xs transition-colors sm:flex-none sm:px-2.5 sm:py-1 sm:text-sm ${
+              className={`whitespace-nowrap rounded-sm px-2.5 py-2 text-xs transition-colors sm:px-2.5 sm:py-1 sm:text-sm ${
                 activeRange === btn.key
                   ? 'bg-steam-control text-steam-text'
                   : 'bg-steam-card text-steam-muted hover:text-steam-text hover:bg-steam-control/50 ring-1 ring-steam-border/50'
@@ -473,11 +533,11 @@ export default function MAUChart({ records }: Props) {
         {/* Bottom stats */}
         <div className="mt-2.5 grid grid-cols-2 gap-2 border-t border-steam-border/50 pt-2.5 sm:grid-cols-3 lg:grid-cols-6">
           <Stat label={t('peak')} value={fmtNum(maxMAU)} />
+          <Stat label={t('cs2Peak')} value={fmtNum(cs2Peak)} />
+          <Stat label={t('cs2Avg')} value={cs2Avg != null ? fmtNum(cs2Avg) : '—'} />
           <Stat label={t('cs2Lowest')} value={minMAU != null ? fmtNum(minMAU) : '—'} />
           <Stat label={t('average')} value={fmtNum(avgMAU)} />
-          <Stat label={t('cs2Avg')} value={cs2Avg != null ? fmtNum(cs2Avg) : '—'} />
           <Stat label={t('csgoPeak')} value={fmtNum(csgoPeak)} />
-          <Stat label={t('cs2Peak')} value={fmtNum(cs2Peak)} />
         </div>
       </div>
     </div>

@@ -44,7 +44,6 @@ export default function App() {
           yoyGrowth={yoyGrowth}
           momGrowth={momGrowth}
           count={count}
-          records={records}
         />
         <div className="mt-3">
           <ChartSection records={records} />

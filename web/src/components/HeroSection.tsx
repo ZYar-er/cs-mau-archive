@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { MAURecord } from '../types'
-import { fmtNum, fmtDate } from '../lib/format'
+import { fmtNum } from '../lib/format'
 import QuickStats from './QuickStats'
 import { useI18n } from '../lib/i18n'
 
@@ -9,7 +9,6 @@ interface Props {
   yoyGrowth: string | null
   momGrowth: string | null
   count: number
-  records: MAURecord[]
 }
 
 export default function HeroSection({
@@ -17,7 +16,6 @@ export default function HeroSection({
   yoyGrowth,
   momGrowth,
   count,
-  records,
 }: Props) {
   const { t, locale } = useI18n()
   const endYear = new Date(latest.date).getFullYear()
@@ -42,6 +40,12 @@ export default function HeroSection({
         timeZoneName: 'short',
       })
     : ''
+  const asOfDate = locale.startsWith('zh')
+    ? `${latest.date.slice(0, 4)}年${Number(latest.date.slice(5, 7))}月`
+    : new Date(latest.date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+      })
 
   return (
     <div className="mx-auto mt-3 max-w-7xl px-4 sm:px-6">
@@ -55,15 +59,15 @@ export default function HeroSection({
             {fmtNum(latest.mau)}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-steam-muted sm:text-base">
-            <span>{t('asOf').replace('{date}', fmtDate(latest.date, locale))}</span>
+            <span>{t('asOf').replace('{date}', asOfDate)}</span>
             {momGrowth && (
               <span
                 className={
                   momPositive ? 'text-steam-green' : 'text-red-400'
                 }
               >
-                {momPositive ? '+' : ''}
-                {momGrowth}% {t('mom')}
+                {t('mom')} {momPositive ? '+' : ''}
+                {momGrowth}%
               </span>
             )}
             {yoyGrowth && (
@@ -72,8 +76,8 @@ export default function HeroSection({
                   yoyPositive ? 'text-steam-green' : 'text-red-400'
                 }
               >
-                {yoyPositive ? '+' : ''}
-                {yoyGrowth}% {t('yoy')}
+                {t('yoy')} {yoyPositive ? '+' : ''}
+                {yoyGrowth}%
               </span>
             )}
           </div>
@@ -115,7 +119,7 @@ export default function HeroSection({
             )}
           </div>
           <div className="border-t border-steam-border/50 pt-2">
-            <QuickStats records={records} />
+            <QuickStats />
           </div>
         </div>
       </div>
