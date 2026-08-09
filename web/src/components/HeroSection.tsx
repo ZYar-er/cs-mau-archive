@@ -52,11 +52,11 @@ export default function HeroSection({
     <div className="mx-auto mt-3 max-w-7xl px-4 sm:px-6">
       <div className="flex flex-col gap-2 lg:flex-row">
         {/* Hero MAU */}
-        <div className="flex flex-1 flex-col justify-center overflow-hidden rounded-sm bg-gradient-to-b from-steam-elevated to-steam-bg px-5 py-4 shadow-steam-lg ring-1 ring-steam-border/50">
+        <div className="flex flex-1 flex-col justify-center overflow-hidden rounded-sm bg-steam-elevated px-5 py-4 shadow-steam-lg ring-1 ring-steam-border/50">
           <p className="mb-1 text-xs font-semibold uppercase tracking-[0.25em] text-steam-muted sm:text-sm">
             {t('heroTitle')}
           </p>
-          <p className="text-3xl font-bold tracking-tight tabular-nums text-steam-blue min-[360px]:text-4xl sm:text-5xl lg:text-6xl">
+          <p className="steam-text-shimmer bg-gradient-to-r from-steam-blue-bright via-steam-blue-mid to-steam-blue-deep bg-clip-text text-3xl font-bold tracking-tight tabular-nums text-transparent min-[360px]:text-4xl sm:text-5xl lg:text-6xl">
             {fmtNum(latest.mau)}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-steam-muted sm:text-base">
