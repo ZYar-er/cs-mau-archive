@@ -124,19 +124,45 @@ function responsiveOverlay(width: number) {
       left: compact ? 12 : 56,
       right: compact ? 8 : 16,
       top: 18,
-      bottom: compact ? 46 : 56,
+      bottom: compact ? 66 : 62,
     },
     xAxis: { axisLabel: { fontSize: compact ? 9 : 10 } },
     yAxis: { axisLabel: { fontSize: compact ? 9 : 11 } },
     dataZoom: [
-      {
-        type: 'slider' as const,
-        height: compact ? 22 : 28,
-        bottom: compact ? 6 : 8,
-      },
+      sliderConfig(compact),
       { type: 'inside' as const, moveOnTouchMove: !compact },
     ],
     series: [{ markLine: { data: buildMarkLineData(compact) } }],
+  }
+}
+
+function sliderConfig(compact: boolean) {
+  return {
+    type: 'slider' as const,
+    height: compact ? 34 : 30,
+    bottom: compact ? 8 : 10,
+    borderColor: '#316282',
+    backgroundColor: 'rgba(22, 32, 45, 0.6)',
+    fillerColor: 'rgba(102, 192, 244, 0.14)',
+    dataBackground: {
+      lineStyle: { color: '#2a3f5a' },
+      areaStyle: { color: 'rgba(42, 63, 90, 0.25)' },
+    },
+    selectedDataBackground: {
+      lineStyle: { color: '#66c0f4' },
+      areaStyle: { color: 'rgba(102, 192, 244, 0.1)' },
+    },
+    handleStyle: {
+      color: '#66c0f4',
+      borderColor: '#a4d4f0',
+      width: compact ? 18 : 14,
+      height: compact ? 18 : 14,
+    },
+    moveHandleStyle: {
+      color: '#66c0f4',
+      size: compact ? 22 : 16,
+    },
+    textStyle: { color: '#8f98a0', fontSize: compact ? 10 : 11 },
   }
 }
 
@@ -232,7 +258,10 @@ export default function MAUChart({ records }: Props) {
     const existing = getInstanceByDom(el)
     if (existing) existing.dispose()
 
-    const chart = init(el)
+    const chart = init(el, null, {
+      useCoarsePointer: true,
+      pointerSize: 52,
+    })
     chartRef.current = chart
 
     const compact = el.clientWidth < COMPACT_BREAKPOINT
@@ -245,11 +274,13 @@ export default function MAUChart({ records }: Props) {
         left: compact ? 12 : 56,
         right: compact ? 8 : 16,
         top: 18,
-        bottom: compact ? 46 : 56,
+        bottom: compact ? 66 : 62,
       },
       tooltip: {
         trigger: 'axis' as const,
         triggerOn: 'mousemove|click',
+        confine: true,
+        enterable: true,
         axisPointer: {
           type: 'cross' as const,
           snap: true,
@@ -258,6 +289,7 @@ export default function MAUChart({ records }: Props) {
         backgroundColor: '#16202d',
         borderColor: '#2a3f5a',
         textStyle: { color: '#c6d4df', fontSize: 12 },
+        padding: [6, 10],
         formatter: (params: Array<{
           axisValue: string
           seriesName: string
@@ -265,16 +297,21 @@ export default function MAUChart({ records }: Props) {
         }>) => {
           const p = params[0]
           if (!p) return ''
+          const isCompactTip =
+            (containerRef.current?.clientWidth ?? 0) < COMPACT_BREAKPOINT
+          const fs = isCompactTip ? 10 : 12
           const d = new Date(p.axisValue)
           const fmt = (n: number) => n.toLocaleString('en-US')
           const record = records.find(
             (r) => new Date(r.date).getTime() === d.getTime(),
           )
-          return `<div style="font-size:12px">
-            <div style="color:#66c0f4;margin-bottom:4px">${d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-            <div><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#66c0f4;margin-right:6px"></span>MAU: <span style="font-family:monospace;color:#c6d4df">${fmt(p.value[1])}</span></div>
-            ${params.length > 1 && params[1] ? `<div style="margin-top:2px"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f5c542;margin-right:6px"></span>6-Month Avg: <span style="font-family:monospace;color:#c6d4df">${fmt(params[1].value[1])}</span></div>` : ''}
-            ${record ? `<div style="margin-top:4px;color:#8f98a0">${record.game_version.toUpperCase()}</div>` : ''}
+          const dot = (color: string) =>
+            `<span style="display:inline-block;width:${isCompactTip ? 6 : 8}px;height:${isCompactTip ? 6 : 8}px;border-radius:50%;background:${color};margin-right:${isCompactTip ? 4 : 6}px"></span>`
+          return `<div style="font-size:${fs}px">
+            <div style="color:#66c0f4;margin-bottom:${isCompactTip ? 2 : 4}px">${d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            <div>${dot('#66c0f4')}MAU: <span style="font-family:monospace;color:#c6d4df">${fmt(p.value[1])}</span></div>
+            ${params.length > 1 && params[1] ? `<div style="margin-top:${isCompactTip ? 1 : 2}px">${dot('#f5c542')}6-Month Avg: <span style="font-family:monospace;color:#c6d4df">${fmt(params[1].value[1])}</span></div>` : ''}
+            ${record ? `<div style="margin-top:${isCompactTip ? 2 : 4}px;color:#8f98a0;font-size:${isCompactTip ? 9 : fs}px">${record.game_version.toUpperCase()}</div>` : ''}
           </div>`
         },
       },
@@ -297,16 +334,9 @@ export default function MAUChart({ records }: Props) {
       },
       dataZoom: [
         {
-          type: 'slider',
+          ...sliderConfig(compact),
           start: Math.max(0, ((records.length - 36) / records.length) * 100),
           end: 100,
-          height: compact ? 22 : 28,
-          bottom: compact ? 6 : 8,
-          borderColor: '#316282',
-          fillerColor: 'rgba(102, 192, 244, 0.08)',
-          handleStyle: { color: '#66c0f4' },
-          textStyle: { color: '#8f98a0', fontSize: 11 },
-          moveHandleStyle: { color: '#66c0f4' },
         },
         { type: 'inside' as const, moveOnTouchMove: !compact },
       ],
@@ -419,7 +449,7 @@ export default function MAUChart({ records }: Props) {
             <button
               key={btn.key}
               onClick={() => handleRangeZoom(btn.key)}
-              className={`rounded-sm px-3 py-1 text-xs transition-colors sm:px-2.5 sm:py-0.5 ${
+              className={`rounded-sm px-3 py-2.5 text-xs transition-colors sm:px-2.5 sm:py-0.5 ${
                 activeRange === btn.key
                   ? 'bg-steam-control text-steam-text'
                   : 'bg-steam-card text-steam-muted hover:text-steam-text hover:bg-steam-control/50 ring-1 ring-steam-border/50'

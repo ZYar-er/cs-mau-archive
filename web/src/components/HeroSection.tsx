@@ -76,7 +76,7 @@ export default function HeroSection({
 
         {/* Meta sidebar */}
         <div className="flex min-w-0 flex-col gap-2 lg:w-96">
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <div className="grid grid-cols-3 gap-2">
             <MetaCard
               label="Game"
               value={latest.game_version}
@@ -117,21 +117,23 @@ function MetaCard({
   small?: boolean
 }) {
   return (
-    <div className="flex min-w-0 flex-col justify-center rounded-sm bg-steam-card px-3 py-2 shadow-steam ring-1 ring-steam-border/50">
+    <div className="flex min-w-0 flex-col justify-center rounded-sm bg-steam-card px-2 py-2 shadow-steam ring-1 ring-steam-border/50 sm:px-3">
       <p className="text-[10px] uppercase tracking-wider text-steam-muted">
         {label}
       </p>
       <p
         className={`mt-0.5 truncate tabular-nums ${
           small
-            ? 'text-xs font-medium text-steam-text'
-            : 'text-sm font-bold uppercase tracking-wide text-steam-text'
+            ? 'text-[10px] font-medium text-steam-text sm:text-xs'
+            : 'text-[11px] font-bold uppercase tracking-wide text-steam-text sm:text-sm'
         }`}
       >
         {value}
       </p>
       {sub && (
-        <p className="mt-0.5 truncate text-[10px] text-steam-muted">{sub}</p>
+        <p className="mt-0.5 truncate text-[9px] text-steam-muted sm:text-[10px]">
+          {sub}
+        </p>
       )}
     </div>
   )
