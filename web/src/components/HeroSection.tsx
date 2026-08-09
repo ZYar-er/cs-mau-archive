@@ -18,7 +18,7 @@ export default function HeroSection({
   count,
 }: Props) {
   const { t, locale } = useI18n()
-  const endYear = new Date(latest.date).getFullYear()
+  const endYear = Number(latest.date.slice(0, 4))
   const yoyPositive = yoyGrowth != null && Number(yoyGrowth) >= 0
   const momPositive = momGrowth != null && Number(momGrowth) >= 0
   const apiTimestamp = latest.api_timestamp
@@ -45,6 +45,7 @@ export default function HeroSection({
     : new Date(latest.date).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
+        timeZone: 'UTC',
       })
 
   return (
@@ -62,9 +63,9 @@ export default function HeroSection({
             <span>{t('asOf').replace('{date}', asOfDate)}</span>
             {momGrowth && (
               <span
-                className={
+                className={`tabular-nums ${
                   momPositive ? 'text-steam-green' : 'text-red-400'
-                }
+                }`}
               >
                 {t('mom')} {momPositive ? '+' : ''}
                 {momGrowth}%
@@ -72,9 +73,9 @@ export default function HeroSection({
             )}
             {yoyGrowth && (
               <span
-                className={
+                className={`tabular-nums ${
                   yoyPositive ? 'text-steam-green' : 'text-red-400'
-                }
+                }`}
               >
                 {t('yoy')} {yoyPositive ? '+' : ''}
                 {yoyGrowth}%

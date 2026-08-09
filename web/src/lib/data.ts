@@ -8,11 +8,23 @@ const historyRecords = (historyJson as MAURecord[]).slice()
 const deduped = new Map<string, MAURecord>()
 
 for (const r of historyRecords) {
+  const existing = deduped.get(r.date)
+  if (existing && existing.mau !== r.mau) {
+    console.warn(
+      `[data] duplicate month ${r.date}: ${existing.source}=${existing.mau} overridden by ${r.source}=${r.mau}`,
+    )
+  }
   deduped.set(r.date, r)
 }
 
 for (const r of dailyRecords) {
   // Daily data is always the latest source, overwrite anything else
+  const existing = deduped.get(r.date)
+  if (existing && existing.mau !== r.mau) {
+    console.warn(
+      `[data] duplicate month ${r.date}: ${existing.source}=${existing.mau} overridden by ${r.source}=${r.mau}`,
+    )
+  }
   deduped.set(r.date, r)
 }
 

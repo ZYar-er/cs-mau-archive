@@ -24,7 +24,7 @@ DAILY_FILE = DATA_DIR / "daily.json"
 CURRENT_FILE = DATA_DIR / "current.json"
 
 HEADERS = {
-    "User-Agent": "cs-mau-archive/1.0 (+https://github.com/anomalyco/cs-mau-archive)",
+    "User-Agent": "cs-mau-archive/1.0 (+https://github.com/ZYar-er/cs-mau-archive)",
     "Accept": "application/json",
 }
 

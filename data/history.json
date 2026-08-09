@@ -777,13 +777,6 @@
   },
   {
     "date": "2023-01-01",
-    "mau": 21557519,
-    "game_version": "csgo",
-    "source": "web_archive_html",
-    "wayback_timestamp": "20230131025826"
-  },
-  {
-    "date": "2023-01-01",
     "mau": 23370421,
     "game_version": "csgo",
     "source": "web_archive_api",

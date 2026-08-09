@@ -8,6 +8,7 @@ export function fmtDate(iso: string, locale = 'en-US'): string {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
+    timeZone: 'UTC',
   })
 }
 

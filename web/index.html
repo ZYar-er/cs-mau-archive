@@ -5,6 +5,20 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Historical monthly player counts for Counter-Strike (CS:GO → CS2)." />
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('cs-mau-lang')
+          var lang =
+            saved === 'zh' || saved === 'en'
+              ? saved
+              : (navigator.language || '').toLowerCase().indexOf('zh') === 0
+                ? 'zh'
+                : 'en'
+          document.documentElement.lang = lang
+        } catch (e) {}
+      })()
+    </script>
     <title>CS MAU Tracker</title>
   </head>
   <body>

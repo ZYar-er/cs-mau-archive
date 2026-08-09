@@ -9,6 +9,8 @@ import {
 import { fmtNum } from '../lib/format'
 import { useI18n } from '../lib/i18n'
 
+// Historical fixed values (see AGENTS.md 统计口径): CS2's first record month
+// and the CS:GO era's all-time peak month. Keep in sync with data if it changes.
 const CS2_FIRST_MONTH = '2023-09'
 const CSGO_PEAK_MONTH = '2023-04'
 

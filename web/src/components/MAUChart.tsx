@@ -21,7 +21,6 @@ const EVENTS = [
   { date: '2023-09-27', labelKey: 'eventCs2', color: '#a4d007' },
 ] as const
 
-const CS2_CUTOFF = '2023-09-27'
 const COMPACT_BREAKPOINT = 640
 
 type RangeBtn = '1Y' | '2Y' | '3Y' | 'all' | 'cs2' | 'csgo' | null
@@ -232,12 +231,12 @@ export default function MAUChart({ records }: Props) {
           endDate = lastDate
           break
         case 'cs2':
-          startDate = '2023-08-01'
+          startDate = '2023-09-01'
           endDate = lastDate
           break
         case 'csgo':
           startDate = firstDate
-          endDate = CS2_CUTOFF
+          endDate = '2023-08-01'
           break
         default:
           return
@@ -492,8 +491,8 @@ export default function MAUChart({ records }: Props) {
 
   const startDate = records[0]?.date
   const endDate = records[records.length - 1]?.date
-  const startYear = startDate ? new Date(startDate).getFullYear() : ''
-  const endYear = endDate ? new Date(endDate).getFullYear() : ''
+  const startYear = startDate ? startDate.slice(0, 4) : ''
+  const endYear = endDate ? endDate.slice(0, 4) : ''
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6">
@@ -513,6 +512,7 @@ export default function MAUChart({ records }: Props) {
             <button
               key={btn.key}
               onClick={() => handleRangeZoom(btn.key)}
+              aria-pressed={activeRange === btn.key}
               className={`whitespace-nowrap rounded-sm px-2.5 py-2 text-xs transition-colors sm:px-2.5 sm:py-1 sm:text-sm ${
                 activeRange === btn.key
                   ? 'bg-steam-control text-steam-text'

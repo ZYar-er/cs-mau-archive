@@ -38,7 +38,7 @@ python scripts/parse_archives.py   # 解析历史 HTML 为 JSON
 - **Python：** 函数签名使用类型标注。函数和变量使用 `snake_case`。`scripts/` 中的脚本遵循 `fetch_*.py` / `parse_*.py` 的命名模式。
 - **CSS：** 通过 `@tailwindcss/vite` 使用 Tailwind CSS 4。自定义主题 token 以 `steam-` 为前缀，在 `index.css` 中定义。
 - **响应式：** 断点沿用 Tailwind 默认（mobile / sm 640 / lg 1024）。MAUChart 以容器宽度 640px 切换紧凑模式（调整 grid 边距、轴字号并隐藏事件标线文字）。统计数值统一使用 `tabular-nums`，卡片用 flex 垂直居中保持等高。
-- **统计口径：** 按版本聚合统一使用 `lib/data.ts` 中的 `getVersion*` 函数（如 `getVersionAvgMAU`、`getVersionMinMAU`、`getVersionPeakRecord`），不要在组件里自行过滤。
+- **统计口径：** 按版本聚合统一使用 `lib/data.ts` 中的 `getVersion*` 函数（如 `getVersionAvgMAU`、`getVersionMinMAU`、`getVersionPeakRecord`），不要在组件里自行过滤。历史确定值（如 CS:GO 峰值月份 `2023-04`、CS2 起始月份 `2023-09`）允许以常量硬编码，但须与数据核对一致，并在定义处注明含义，不得用于动态统计数值。
 - **格式化：** 尚未配置格式化工具。保持现有缩进风格一致（TSX/JSON 为 2 空格，Python 为 4 空格）。
 
 ## 测试指南

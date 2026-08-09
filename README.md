@@ -12,7 +12,7 @@ Steam API endpoint: `https://api.steampowered.com/ICSGOServers_730/GetMonthlyPla
 
 ## Web
 
-The dashboard in `web/` is a React + Vite + Tailwind + visx static SPA.
+The dashboard in `web/` is a React + Vite + Tailwind + ECharts 6 static SPA.
 
 ```sh
 cd web
@@ -23,7 +23,7 @@ npm run preview  # preview the build
 
 ## Deployment (Cloudflare Pages)
 
-The site is pure static. `web/wrangler.toml` configures the Pages project; `npm run build` outputs to `web/dist`.
+The site is pure static and deploys to Cloudflare Pages (repo-connected; build command `npm run build`, output directory `web/dist`). `web/wrangler.toml` is an optional Workers static-assets config for `wrangler deploy`, not required for Pages.
 
 1. Push the repo to GitHub.
 2. In Cloudflare, create a Pages project connected to the repo.

@@ -16,7 +16,7 @@ the same stale value.
 import json
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import requests
@@ -55,7 +55,7 @@ def get_api_snapshots() -> dict[str, dict]:
         "fl": "timestamp,original,statuscode,length",
         "limit": "50000",
         "from": "2023",
-        "to": "202612",
+        "to": datetime.now(timezone.utc).strftime("%Y%m"),
     }
     rows = None
     for attempt in range(5):
@@ -142,7 +142,11 @@ def main() -> None:
     skipped = 0
 
     for i, m in enumerate(months):
-        if m in done:
+        # The API publishes on the 1st reporting the PREVIOUS month (same rule
+        # as fetch_monthly.py), so the record date is snapshot month - 1.
+        snap_dt = datetime.strptime(m + "01000000", "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
+        data_dt = (snap_dt.replace(day=1) - timedelta(days=1)).replace(day=1)
+        if data_dt.strftime("%Y%m") in done:
             continue
 
         snap = by_month[m]
@@ -169,11 +173,12 @@ def main() -> None:
                 skipped += 1
                 continue
 
-        dt = datetime.strptime(m + "01000000", "%Y%m%d%H%M%S").replace(tzinfo=timezone.utc)
+        # The payload check above verifies the payload's publication month
+        # matches the snapshot month.
         record = {
-            "date": dt.strftime("%Y-%m-%d"),
+            "date": data_dt.strftime("%Y-%m-%d"),
             "mau": mau,
-            "game_version": _game_version(dt),
+            "game_version": _game_version(snap_dt),
             "source": "web_archive_api",
             "wayback_timestamp": ts,
         }
