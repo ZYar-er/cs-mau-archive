@@ -13,13 +13,13 @@ interface Props {
 
 export default function QuickStats({ records }: Props) {
   const peak = getPeak()?.mau ?? 0
-  const avg = getVersionAvgMAU('cs2') ?? 0
+  const avg = getVersionAvgMAU('cs2')
   const latest = records[records.length - 1]?.mau ?? 0
   const cs2PeakRecord = getVersionPeakRecord('cs2')
-  const cs2Peak = cs2PeakRecord?.mau ?? 0
+  const cs2Peak = cs2PeakRecord?.mau ?? null
   const cs2PeakMonth = cs2PeakRecord?.date?.slice(0, 7) ?? ''
   const csgoPeakRecord = getVersionPeakRecord('csgo')
-  const csgoPeak = csgoPeakRecord?.mau ?? 0
+  const csgoPeak = csgoPeakRecord?.mau ?? null
   const csgoPeakMonth = csgoPeakRecord?.date?.slice(0, 7) ?? ''
   const yoy = getYoYGrowth()
   const peakMonth = getPeak()?.date?.slice(0, 7) ?? ''
@@ -34,16 +34,16 @@ export default function QuickStats({ records }: Props) {
         color="text-steam-blue"
         highlight
       />
-      <Card label="CS2 Average" value={fmtNum(avg)} />
+      <Card label="CS2 Average" value={avg != null ? fmtNum(avg) : '—'} />
       <Card label="Latest" value={fmtNum(latest)} />
       <Card
         label="CS:GO Peak"
-        value={fmtNum(csgoPeak)}
+        value={csgoPeak != null ? fmtNum(csgoPeak) : '—'}
         sub={csgoPeakMonth}
       />
       <Card
         label="CS2 Peak"
-        value={fmtNum(cs2Peak)}
+        value={cs2Peak != null ? fmtNum(cs2Peak) : '—'}
         sub={cs2PeakMonth}
         color="text-steam-green"
       />

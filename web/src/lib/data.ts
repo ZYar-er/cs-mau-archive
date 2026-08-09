@@ -63,11 +63,6 @@ export function getPeak(): MAURecord | null {
   return records.reduce((a, b) => (b.mau > a.mau ? b : a))
 }
 
-export function getMinMAU(): number | null {
-  if (records.length === 0) return null
-  return Math.min(...records.map((r) => r.mau))
-}
-
 export function getVersionMinMAU(version: string): number | null {
   const versionRecords = records.filter((r) => r.game_version === version)
   if (versionRecords.length === 0) return null

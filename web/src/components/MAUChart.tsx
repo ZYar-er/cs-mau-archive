@@ -390,9 +390,9 @@ export default function MAUChart({ records }: Props) {
 
   // Bottom stats (computed over ALL records, unaffected by brush)
   const maxMAU = getPeak()?.mau ?? 0
-  const minMAU = getVersionMinMAU('cs2') ?? 0
+  const minMAU = getVersionMinMAU('cs2')
   const avgMAU = getAvgMAU() ?? 0
-  const cs2Avg = getVersionAvgMAU('cs2') ?? 0
+  const cs2Avg = getVersionAvgMAU('cs2')
   const csgoPeak = getVersionPeak('csgo')
   const cs2Peak = getVersionPeak('cs2')
 
@@ -439,9 +439,9 @@ export default function MAUChart({ records }: Props) {
         {/* Bottom stats */}
         <div className="mt-2.5 grid grid-cols-2 gap-2 border-t border-steam-border/50 pt-2.5 sm:grid-cols-3 lg:grid-cols-6">
           <Stat label="Peak" value={fmtNum(maxMAU)} />
-          <Stat label="CS2 Lowest" value={fmtNum(minMAU)} />
+          <Stat label="CS2 Lowest" value={minMAU != null ? fmtNum(minMAU) : '—'} />
           <Stat label="Average" value={fmtNum(avgMAU)} />
-          <Stat label="CS2 Avg" value={fmtNum(cs2Avg)} />
+          <Stat label="CS2 Avg" value={cs2Avg != null ? fmtNum(cs2Avg) : '—'} />
           <Stat label="CS:GO Peak" value={fmtNum(csgoPeak)} />
           <Stat label="CS2 Peak" value={fmtNum(cs2Peak)} />
         </div>
@@ -462,7 +462,7 @@ function Stat({
       <p className="text-xs uppercase tracking-wider text-steam-muted">
         {label}
       </p>
-      <p className="mt-0.5 text-sm font-semibold text-steam-text">
+      <p className="mt-0.5 text-sm font-semibold tabular-nums text-steam-text">
         {value}
       </p>
     </div>

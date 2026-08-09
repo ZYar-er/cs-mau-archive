@@ -46,7 +46,7 @@ export default function HeroSection({
           <p className="mb-1 text-xs font-semibold uppercase tracking-[0.25em] text-steam-muted">
             Monthly Active Users
           </p>
-          <p className="text-3xl font-bold tracking-tight text-steam-blue min-[360px]:text-4xl sm:text-5xl">
+          <p className="text-3xl font-bold tracking-tight tabular-nums text-steam-blue min-[360px]:text-4xl sm:text-5xl">
             {fmtNum(latest.mau)}
           </p>
           <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-steam-muted">

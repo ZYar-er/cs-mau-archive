@@ -10,18 +10,6 @@ export function fmtDate(iso: string): string {
   })
 }
 
-export function fmtTimestamp(iso: string): string {
-  return new Date(iso).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'UTC',
-    timeZoneName: 'short',
-  })
-}
-
 // Compact MAU for axis labels: 32,387,073 → "32.39M"
 export function fmtMAU(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`
