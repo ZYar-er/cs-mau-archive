@@ -68,13 +68,33 @@ export function getMinMAU(): number | null {
   return Math.min(...records.map((r) => r.mau))
 }
 
+export function getVersionMinMAU(version: string): number | null {
+  const versionRecords = records.filter((r) => r.game_version === version)
+  if (versionRecords.length === 0) return null
+  return Math.min(...versionRecords.map((r) => r.mau))
+}
+
 export function getAvgMAU(): number | null {
   if (records.length === 0) return null
   return Math.round(records.reduce((s, r) => s + r.mau, 0) / records.length)
+}
+
+export function getVersionAvgMAU(version: string): number | null {
+  const versionRecords = records.filter((r) => r.game_version === version)
+  if (versionRecords.length === 0) return null
+  return Math.round(
+    versionRecords.reduce((s, r) => s + r.mau, 0) / versionRecords.length,
+  )
 }
 
 export function getVersionPeak(version: string): number {
   const versionRecords = records.filter((r) => r.game_version === version)
   if (versionRecords.length === 0) return 0
   return Math.max(...versionRecords.map((r) => r.mau))
+}
+
+export function getVersionPeakRecord(version: string): MAURecord | null {
+  const versionRecords = records.filter((r) => r.game_version === version)
+  if (versionRecords.length === 0) return null
+  return versionRecords.reduce((a, b) => (b.mau > a.mau ? b : a))
 }

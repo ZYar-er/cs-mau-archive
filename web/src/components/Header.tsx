@@ -7,10 +7,10 @@ export default function Header() {
           <path d="M6 5l4.5 3L6 11V5z" fill="#66c0f4" />
         </svg>
         <div className="flex flex-col leading-none">
-          <span className="text-base font-semibold uppercase tracking-[0.15em] text-steam-text">
+          <span className="text-sm font-semibold uppercase tracking-[0.12em] text-steam-text min-[420px]:text-base">
             CS MAU Tracker
           </span>
-          <span className="mt-0.5 text-[10px] uppercase tracking-[0.25em] text-steam-muted">
+          <span className="mt-0.5 hidden text-[10px] uppercase tracking-[0.25em] text-steam-muted min-[420px]:block">
             Counter-Strike Monthly Active Users
           </span>
         </div>

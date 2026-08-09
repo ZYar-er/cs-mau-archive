@@ -5,9 +5,11 @@ import '../lib/echarts'
 import type { MAURecord } from '../types'
 import {
   getPeak,
-  getMinMAU,
   getAvgMAU,
+  getVersionAvgMAU,
+  getVersionMinMAU,
   getVersionPeak,
+  getVersionPeakRecord,
 } from '../lib/data'
 import { fmtNum, fmtMAU } from '../lib/format'
 
@@ -19,6 +21,7 @@ const EVENTS = [
 ] as const
 
 const CS2_CUTOFF = '2023-09-27'
+const COMPACT_BREAKPOINT = 640
 
 type RangeBtn = '1Y' | '2Y' | '3Y' | 'all' | 'cs2' | 'csgo' | null
 
@@ -50,6 +53,93 @@ function areaGradient() {
   }
 }
 
+function buildMarkLineData(compact: boolean) {
+  const csgoPeak = getVersionPeakRecord('csgo')
+  return [
+    ...EVENTS.map((ev) => ({
+      xAxis: ev.date,
+      label: {
+        show: !compact,
+        formatter: ev.label,
+        position: 'insideEndTop' as const,
+        color: ev.color,
+        fontSize: compact ? 9 : 10,
+      },
+      lineStyle: {
+        color: ev.color,
+        type: 'dashed' as const,
+        width: 1,
+      },
+    })),
+    {
+      name: 'CS:GO Peak',
+      xAxis: csgoPeak?.date ?? '',
+      label: {
+        show: true,
+        formatter: compact
+          ? 'CS:GO Peak'
+          : csgoPeak
+            ? `CS:GO Peak · ${fmtMAU(csgoPeak.mau)}`
+            : 'CS:GO Peak',
+        position: 'insideStartTop' as const,
+        color: '#e8933a',
+        fontSize: compact ? 9 : 10,
+      },
+      lineStyle: {
+        color: '#e8933a',
+        type: 'solid' as const,
+        width: 1,
+      },
+    },
+    (() => {
+      const peak = getPeak()
+      return {
+        name: 'Peak',
+        xAxis: peak?.date ?? '',
+        label: {
+          show: true,
+          formatter: compact
+            ? 'Peak'
+            : peak
+              ? `Peak · ${fmtMAU(peak.mau)}`
+              : 'Peak',
+          position: 'insideStartTop' as const,
+          color: '#ff6b6b',
+          fontSize: compact ? 9 : 10,
+        },
+        lineStyle: {
+          color: '#ff6b6b',
+          type: 'dashed' as const,
+          width: 1,
+        },
+      }
+    })(),
+  ]
+}
+
+function responsiveOverlay(width: number) {
+  const compact = width < COMPACT_BREAKPOINT
+  return {
+    grid: {
+      left: compact ? 12 : 56,
+      right: compact ? 8 : 16,
+      top: 18,
+      bottom: compact ? 46 : 56,
+    },
+    xAxis: { axisLabel: { fontSize: compact ? 9 : 10 } },
+    yAxis: { axisLabel: { fontSize: compact ? 9 : 11 } },
+    dataZoom: [
+      {
+        type: 'slider' as const,
+        height: compact ? 22 : 28,
+        bottom: compact ? 6 : 8,
+      },
+      { type: 'inside' as const, moveOnTouchMove: !compact },
+    ],
+    series: [{ markLine: { data: buildMarkLineData(compact) } }],
+  }
+}
+
 interface Props {
   records: MAURecord[]
 }
@@ -58,6 +148,7 @@ export default function MAUChart({ records }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<EChartsType | null>(null)
   const maxRef = useRef<number>(0)
+  const widthBucketRef = useRef<'compact' | 'wide' | null>(null)
   const [activeRange, setActiveRange] = useState<RangeBtn>(null)
   const zoomingFromBtn = useRef(false)
 
@@ -144,12 +235,21 @@ export default function MAUChart({ records }: Props) {
     const chart = init(el)
     chartRef.current = chart
 
+    const compact = el.clientWidth < COMPACT_BREAKPOINT
+    widthBucketRef.current = compact ? 'compact' : 'wide'
+
     const initialMax = Math.max(...records.map((r) => r.mau)) * 1.1
 
     const option: Record<string, unknown> = {
-      grid: { left: 56, right: 16, top: 18, bottom: 56 },
+      grid: {
+        left: compact ? 12 : 56,
+        right: compact ? 8 : 16,
+        top: 18,
+        bottom: compact ? 46 : 56,
+      },
       tooltip: {
         trigger: 'axis' as const,
+        triggerOn: 'mousemove|click',
         axisPointer: {
           type: 'cross' as const,
           snap: true,
@@ -181,7 +281,7 @@ export default function MAUChart({ records }: Props) {
       xAxis: {
         type: 'time',
         axisLine: { lineStyle: { color: '#2a3f5a' } },
-        axisLabel: { color: '#8f98a0', fontSize: 10 },
+        axisLabel: { color: '#8f98a0', fontSize: compact ? 9 : 10 },
         axisTick: { show: false },
       },
       yAxis: {
@@ -190,7 +290,7 @@ export default function MAUChart({ records }: Props) {
         max: initialMax,
         axisLabel: {
           color: '#8f98a0',
-          fontSize: 11,
+          fontSize: compact ? 9 : 11,
           formatter: (v: number) => fmtMAU(v),
         },
         splitLine: { lineStyle: { color: '#2a3f5a', type: 'dashed' as const } },
@@ -200,15 +300,15 @@ export default function MAUChart({ records }: Props) {
           type: 'slider',
           start: Math.max(0, ((records.length - 36) / records.length) * 100),
           end: 100,
-          height: 28,
-          bottom: 8,
+          height: compact ? 22 : 28,
+          bottom: compact ? 6 : 8,
           borderColor: '#316282',
           fillerColor: 'rgba(102, 192, 244, 0.08)',
           handleStyle: { color: '#66c0f4' },
           textStyle: { color: '#8f98a0', fontSize: 11 },
           moveHandleStyle: { color: '#66c0f4' },
         },
-        { type: 'inside' as const },
+        { type: 'inside' as const, moveOnTouchMove: !compact },
       ],
       series: [
         {
@@ -223,44 +323,7 @@ export default function MAUChart({ records }: Props) {
             symbol: 'none' as const,
             silent: true,
             animation: false,
-            data: [
-              ...EVENTS.map((ev) => ({
-                xAxis: ev.date,
-                label: {
-                  show: true,
-                  formatter: ev.label,
-                  position: 'insideEndTop' as const,
-                  color: ev.color,
-                  fontSize: 10,
-                },
-                lineStyle: {
-                  color: ev.color,
-                  type: 'dashed' as const,
-                  width: 1,
-                },
-              })),
-              (() => {
-                const peak = getPeak()
-                return {
-                  name: 'Peak',
-                  xAxis: peak?.date ?? '',
-                  label: {
-                    show: true,
-                    formatter: peak
-                      ? `Peak · ${fmtMAU(peak.mau)}`
-                      : 'Peak',
-                    position: 'insideEndTop' as const,
-                    color: '#ff6b6b',
-                    fontSize: 10,
-                  },
-                  lineStyle: {
-                    color: '#ff6b6b',
-                    type: 'dashed' as const,
-                    width: 1,
-                  },
-                }
-              })(),
-            ],
+            data: buildMarkLineData(compact),
           },
         },
         {
@@ -307,7 +370,16 @@ export default function MAUChart({ records }: Props) {
     })
 
     // Responsive resize
-    const ro = new ResizeObserver(() => chart.resize())
+    const ro = new ResizeObserver(() => {
+      chart.resize()
+      const next = el.clientWidth < COMPACT_BREAKPOINT ? 'compact' : 'wide'
+      if (next !== widthBucketRef.current) {
+        widthBucketRef.current = next
+        chart.setOption(responsiveOverlay(el.clientWidth), {
+          lazyUpdate: true,
+        })
+      }
+    })
     ro.observe(el)
 
     return () => {
@@ -318,8 +390,9 @@ export default function MAUChart({ records }: Props) {
 
   // Bottom stats (computed over ALL records, unaffected by brush)
   const maxMAU = getPeak()?.mau ?? 0
-  const minMAU = getMinMAU() ?? 0
+  const minMAU = getVersionMinMAU('cs2') ?? 0
   const avgMAU = getAvgMAU() ?? 0
+  const cs2Avg = getVersionAvgMAU('cs2') ?? 0
   const csgoPeak = getVersionPeak('csgo')
   const cs2Peak = getVersionPeak('cs2')
 
@@ -330,8 +403,8 @@ export default function MAUChart({ records }: Props) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6">
-      <div className="rounded-sm bg-steam-card px-4 py-5 shadow-steam ring-1 ring-steam-border/50 sm:px-6">
-        <div className="mb-4 flex items-center justify-between">
+      <div className="rounded-sm bg-steam-card px-4 py-3 shadow-steam ring-1 ring-steam-border/50 sm:px-5">
+        <div className="mb-2.5 flex items-center justify-between">
           <p className="text-xs uppercase tracking-wider text-steam-muted">
             MAU History
           </p>
@@ -341,12 +414,12 @@ export default function MAUChart({ records }: Props) {
         </div>
 
         {/* Quick range buttons */}
-        <div className="mb-3 flex items-center gap-1.5">
+        <div className="mb-2 flex flex-wrap items-center gap-1.5">
           {RANGE_BUTTONS.map((btn) => (
             <button
               key={btn.key}
               onClick={() => handleRangeZoom(btn.key)}
-              className={`rounded-sm px-2.5 py-0.5 text-xs transition-colors ${
+              className={`rounded-sm px-3 py-1 text-xs transition-colors sm:px-2.5 sm:py-0.5 ${
                 activeRange === btn.key
                   ? 'bg-steam-control text-steam-text'
                   : 'bg-steam-card text-steam-muted hover:text-steam-text hover:bg-steam-control/50 ring-1 ring-steam-border/50'
@@ -357,13 +430,18 @@ export default function MAUChart({ records }: Props) {
           ))}
         </div>
 
-        <div ref={containerRef} style={{ width: '100%', height: 420 }} />
+        <div
+          ref={containerRef}
+          className="h-[280px] sm:h-[340px]"
+          style={{ width: '100%' }}
+        />
 
         {/* Bottom stats */}
-        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-steam-border/50 pt-4 sm:grid-cols-5">
+        <div className="mt-2.5 grid grid-cols-2 gap-2 border-t border-steam-border/50 pt-2.5 sm:grid-cols-3 lg:grid-cols-6">
           <Stat label="Peak" value={fmtNum(maxMAU)} />
-          <Stat label="Lowest" value={fmtNum(minMAU)} />
+          <Stat label="CS2 Lowest" value={fmtNum(minMAU)} />
           <Stat label="Average" value={fmtNum(avgMAU)} />
+          <Stat label="CS2 Avg" value={fmtNum(cs2Avg)} />
           <Stat label="CS:GO Peak" value={fmtNum(csgoPeak)} />
           <Stat label="CS2 Peak" value={fmtNum(cs2Peak)} />
         </div>
@@ -372,13 +450,19 @@ export default function MAUChart({ records }: Props) {
   )
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+}: {
+  label: string
+  value: string
+}) {
   return (
     <div className="text-center">
       <p className="text-xs uppercase tracking-wider text-steam-muted">
         {label}
       </p>
-      <p className="mt-0.5 text-base font-semibold text-steam-text">
+      <p className="mt-0.5 text-sm font-semibold text-steam-text">
         {value}
       </p>
     </div>

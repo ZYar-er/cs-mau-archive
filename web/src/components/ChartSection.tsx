@@ -9,7 +9,7 @@ export default function ChartSection({ records }: Props) {
   if (records.length < 2) {
     return (
       <div className="mx-auto mt-4 max-w-7xl px-4 sm:px-6">
-        <div className="flex h-64 items-center justify-center rounded-sm bg-steam-card text-steam-muted shadow-steam ring-1 ring-steam-border/50">
+        <div className="flex h-40 items-center justify-center rounded-sm bg-steam-card text-steam-muted shadow-steam ring-1 ring-steam-border/50 sm:h-56">
           <div className="text-center">
             <p className="text-lg">Not enough data yet</p>
             <p className="mt-1 text-sm">
