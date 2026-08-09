@@ -259,7 +259,9 @@ export default function MAUChart({ records }: Props) {
     if (existing) existing.dispose()
 
     const chart = init(el, null, {
-      useCoarsePointer: true,
+      // ECharts 6 runtime supports 'auto' (touch vs. mouse); public types only
+      // declare boolean, so assert through unknown.
+      useCoarsePointer: 'auto' as unknown as boolean,
       pointerSize: 52,
     })
     chartRef.current = chart

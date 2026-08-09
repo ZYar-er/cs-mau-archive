@@ -131,7 +131,7 @@ function MetaCard({
         {value}
       </p>
       {sub && (
-        <p className="mt-0.5 truncate text-[9px] text-steam-muted sm:text-[10px]">
+        <p className="mt-0.5 text-[9px] leading-tight text-steam-muted sm:text-[10px]">
           {sub}
         </p>
       )}

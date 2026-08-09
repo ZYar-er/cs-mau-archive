@@ -1,6 +1,6 @@
 export default function Header() {
   return (
-    <header className="bg-steam-nav shadow-steam-lg">
+    <header className="bg-steam-nav pt-[env(safe-area-inset-top)] shadow-steam-lg">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
         <svg viewBox="0 0 16 16" className="h-7 w-7" fill="none" aria-hidden>
           <circle cx="8" cy="8" r="7" stroke="#66c0f4" strokeWidth="0.5" />
