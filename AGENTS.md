@@ -43,7 +43,7 @@ python scripts/parse_archives.py   # 解析历史 HTML 为 JSON
 
 ## 测试指南
 
-当前没有测试套件。添加测试时，将测试文件放在对应代码旁边（例如 `scripts/test_fetch_daily.py` 或 `web/src/components/__tests__/`）。在 `web/` 下运行 `npx tsc --noEmit` 进行类型检查，作为最低限度的安全网。
+当前没有测试套件。添加测试时，将测试文件放在对应代码旁边（例如 `scripts/test_fetch_monthly.py` 或 `web/src/components/__tests__/`）。在 `web/` 下运行 `npx tsc --noEmit` 进行类型检查，作为最低限度的安全网。
 
 ## 提交与 Pull Request 规范
 

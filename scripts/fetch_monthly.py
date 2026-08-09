@@ -28,9 +28,14 @@ HEADERS = {
     "Accept": "application/json",
 }
 
+# CS2 was released 2023-09-27. The Steam API only reports the current
+# version, but keep the same cutoff logic as the archive scripts so the
+# version label stays consistent if historical data ever flows through.
+CS2_CUTOFF = datetime(2023, 9, 27, tzinfo=timezone.utc)
+
 
 def _game_version(dt: datetime) -> str:
-    return "cs2"
+    return "cs2" if dt >= CS2_CUTOFF else "csgo"
 
 
 def fetch_mau() -> dict | None:

@@ -35,6 +35,7 @@ The site is pure static. `web/wrangler.toml` configures the Pages project; `npm 
 - `scripts/fetch_monthly.py` — calls the Steam API monthly, dedups by month, appends to `data/daily.json`. Runs via `.github/workflows/monthly_fetch.yml` on the 1st at 09:00 UTC.
 - `scripts/parse_archives.py` — parses Wayback Machine HTML snapshots into `data/history.json`.
 - `scripts/download_archives.py` / `fetch_api_archive.py` — fetch the raw snapshots.
+- `scripts/fetch_archive.py` — convenience wrapper: downloads snapshots, then parses them into `data/history.json`.
 
 ## License
 
