@@ -87,6 +87,7 @@ const datasetJsonLd = latest
       description,
       url: SITE,
       creator: { '@type': 'Organization', name: 'CS MAU Tracker', url: REPO },
+      license: `${REPO}/blob/master/LICENSE`,
       dateModified: latest.date,
       temporalCoverage: range || undefined,
       variableMeasured: {
@@ -123,24 +124,35 @@ const jsonLd = {
   ],
 }
 
-// --- patch web/index.html tokens ---
+// --- patch web/index.html between persistent marker comments ---
+// Markers like <!-- SEO:TITLE --> ... <!-- /SEO:TITLE --> stay in the file
+// after generation, so every run can locate and rewrite the block (unlike
+// one-shot tokens, which disappear after the first replacement).
 const indexPath = resolve(webDir, 'index.html')
 let indexHtml = readFileSync(indexPath, 'utf-8')
-const replacements = [
-  ['__SEO_TITLE__', title],
-  ['__SEO_DESC__', description],
-  ['__SEO_OG_TITLE__', ogTitle],
-  ['__SEO_OG_DESC__', description],
+const blocks = [
+  ['TITLE', `<title>${title}</title>`],
+  ['DESC', `<meta name="description" content="${description}" />`],
+  ['OG_TITLE', `<meta property="og:title" content="${ogTitle}" />`],
+  ['OG_DESC', `<meta property="og:description" content="${description}" />`],
+  ['TW_TITLE', `<meta name="twitter:title" content="${ogTitle}" />`],
+  ['TW_DESC', `<meta name="twitter:description" content="${description}" />`],
   [
-    '__SEO_JSONLD__',
+    'JSONLD',
     `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(
       /</g,
       '\\u003c',
     )}</script>`,
   ],
 ]
-for (const [token, value] of replacements) {
-  if (indexHtml.includes(token)) indexHtml = indexHtml.split(token).join(value)
+for (const [name, content] of blocks) {
+  const re = new RegExp(
+    `(<!-- SEO:${name} -->)[\\s\\S]*?(<!-- /SEO:${name} -->)`,
+  )
+  if (!re.test(indexHtml)) {
+    throw new Error(`[gen-seo] missing SEO:${name} markers in web/index.html`)
+  }
+  indexHtml = indexHtml.replace(re, `$1\n    ${content}\n    $2`)
 }
 if (indexHtml !== readFileSync(indexPath, 'utf-8')) {
   writeFileSync(indexPath, indexHtml)
