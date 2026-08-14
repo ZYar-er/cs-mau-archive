@@ -7,9 +7,9 @@ scripts/          Python 数据抓取脚本（Steam API、归档解析）
 data/             脚本输出的 JSON 数据（daily.json、history.json、current.json）
 web/              React + Vite 前端，用于可视化 MAU 数据
 web/src/          TypeScript 源码
-web/src/components/  React 组件（Header、HeroSection（含 QuickStats 卡片区）、ChartSection、MAUChart、Footer）
+web/src/components/  React 组件（Header、HeroSection（含 QuickStats 卡片区）、ChartSection、MAUChart、InfoSection、Footer）
 web/src/data/     可导入的数据模块，由仓库级 data/ 同步而来
-web/scripts/      构建辅助脚本（copy-data.mjs）
+web/scripts/      构建辅助脚本（copy-data.mjs、gen-seo.mjs、render-ssr.mjs）
 archive/          Wayback Machine 的历史原始 HTML 快照
 docs/             设计规格与实现计划
 ```
@@ -20,8 +20,8 @@ docs/             设计规格与实现计划
 
 | 命令                  | 用途                                          |
 |----------------------|----------------------------------------------|
-| `npm run dev`        | 启动 Vite 开发服务器（会先同步数据文件）       |
-| `npm run build`      | 先用 `tsc` 做类型检查，再生成 Vite 生产构建     |
+| `npm run dev`        | 启动 Vite 开发服务器（会先同步数据、生成 SEO 元数据） |
+| `npm run build`      | `tsc` 类型检查 → Vite 生产构建 → SSR 预渲染进 `dist/index.html` |
 | `npm run preview`    | 本地预览生产构建                              |
 
 Python 脚本在仓库根目录执行：
@@ -56,3 +56,4 @@ python scripts/parse_archives.py   # 解析历史 HTML 为 JSON
 1. `scripts/fetch_monthly.py` 每月通过 GitHub Actions（`cron: "0 9 1 * *"`）调用 Steam API，按月份去重后写入 `data/daily.json`，并同步更新 `data/current.json`。
 2. `archive/` 中的历史 HTML 文件通过 `scripts/parse_archives.py` 解析为 `data/history.json`。
 3. 开发/构建前，`web/scripts/copy-data.mjs` 将 `data/*.json` 复制到 `web/src/data/`，以便前端直接导入。
+4. 构建前 `web/scripts/gen-seo.mjs` 依据数据生成 SEO 元数据（写入 `web/index.html` 的 token）、`web/public/robots.txt`、`web/public/sitemap.xml`，并把数据 JSON 复制到 `web/public/data/` 供爬虫抓取；构建后 `web/scripts/render-ssr.mjs` 将 React 应用预渲染进 `dist/index.html`（客户端再水合）。SEO 相关改动注意：`index.html` 中的 `__SEO_*__` token 由 gen-seo 在构建时替换，勿手改生成结果。

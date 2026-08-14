@@ -1,9 +1,25 @@
+import { lazy, Suspense } from 'react'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import HeroSection from './components/HeroSection'
-import ChartSection from './components/ChartSection'
+import InfoSection from './components/InfoSection'
 import { getLatest, getAll, getYoYGrowth, getMoMGrowth, getCount } from './lib/data'
 import { useI18n } from './lib/i18n'
+
+// ECharts (~500KB) is split into its own chunk: only loaded after first paint.
+const ChartSection = lazy(() => import('./components/ChartSection'))
+
+// Suspense fallback matches the chart card's height so hydration (which also
+// renders this fallback) is stable and there is no layout shift.
+function ChartFallback() {
+  return (
+    <div className="mx-auto max-w-7xl px-4 sm:px-6">
+      <div className="rounded-sm bg-steam-card px-4 py-3 shadow-steam ring-1 ring-steam-border/50 sm:px-5">
+        <div className="h-[280px] sm:h-[340px]" />
+      </div>
+    </div>
+  )
+}
 
 export default function App() {
   const { t } = useI18n()
@@ -46,8 +62,11 @@ export default function App() {
           count={count}
         />
         <div className="mt-3">
-          <ChartSection records={records} />
+          <Suspense fallback={<ChartFallback />}>
+            <ChartSection records={records} />
+          </Suspense>
         </div>
+        <InfoSection records={records} />
       </main>
       <Footer />
     </div>

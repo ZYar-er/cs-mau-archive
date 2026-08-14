@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://csmau.zyar.top/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://csmau.zyar.top/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://csmau.zyar.top/?lang=zh" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://csmau.zyar.top/" />
+  </url>
+  <url>
+    <loc>https://csmau.zyar.top/?lang=zh</loc>
+    <lastmod>2026-07-01</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://csmau.zyar.top/" />
+    <xhtml:link rel="alternate" hreflang="zh" href="https://csmau.zyar.top/?lang=zh" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://csmau.zyar.top/" />
+  </url>
+</urlset>

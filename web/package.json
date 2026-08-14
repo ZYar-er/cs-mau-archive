@@ -3,11 +3,12 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "homepage": "https://csmau.zyar.top/",
   "scripts": {
-    "predev": "node scripts/copy-data.mjs",
+    "predev": "node scripts/copy-data.mjs && node scripts/gen-seo.mjs",
     "dev": "vite",
-    "prebuild": "node scripts/copy-data.mjs",
-    "build": "tsc && vite build",
+    "prebuild": "node scripts/copy-data.mjs && node scripts/gen-seo.mjs",
+    "build": "tsc && vite build && node scripts/render-ssr.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {

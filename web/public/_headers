@@ -1,0 +1,12 @@
+# Cloudflare Pages headers (see https://developers.cloudflare.com/pages/configuration/headers/)
+# Hashed assets are immutable; raw dataset JSON refreshes hourly; HTML is
+# revalidated so the monthly data update propagates quickly.
+
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/data/*
+  Cache-Control: public, max-age=3600
+
+/*
+  Cache-Control: public, max-age=300, must-revalidate

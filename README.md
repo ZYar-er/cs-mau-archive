@@ -1,5 +1,7 @@
 # CS MAU Tracker
 
+**Live site: [https://csmau.zyar.top/](https://csmau.zyar.top/)** — also available in Chinese at [`https://csmau.zyar.top/?lang=zh`](https://csmau.zyar.top/?lang=zh).
+
 Historical monthly active users (MAU) for Counter-Strike (CS:GO → CS2), scraped from the official Steam API that powers [counter-strike.net](https://www.counter-strike.net/).
 
 ## Data
