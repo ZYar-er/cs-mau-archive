@@ -69,19 +69,23 @@ export default function HeroSection({
             <div className="mt-3 h-px bg-gradient-to-r from-steam-blue-bright/60 via-steam-blue/25 to-transparent" />
             <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-steam-muted sm:text-base">
               <span>{t('asOf').replace('{date}', asOfDate)}</span>
-              {momGrowth && (
-                <GrowthBadge
-                  label={t('mom')}
-                  value={momGrowth}
-                  positive={momPositive}
-                />
-              )}
-              {yoyGrowth && (
-                <GrowthBadge
-                  label={t('yoy')}
-                  value={yoyGrowth}
-                  positive={yoyPositive}
-                />
+              {(momGrowth || yoyGrowth) && (
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  {momGrowth && (
+                    <GrowthBadge
+                      label={t('mom')}
+                      value={momGrowth}
+                      positive={momPositive}
+                    />
+                  )}
+                  {yoyGrowth && (
+                    <GrowthBadge
+                      label={t('yoy')}
+                      value={yoyGrowth}
+                      positive={yoyPositive}
+                    />
+                  )}
+                </div>
               )}
             </div>
         </div>
@@ -141,7 +145,7 @@ function GrowthBadge({
 }) {
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-xs font-medium tabular-nums ring-1 sm:text-sm ${
+      className={`inline-flex items-center gap-1 whitespace-nowrap rounded-sm px-1.5 py-0.5 text-xs font-medium tabular-nums ring-1 sm:text-sm ${
         positive
           ? 'bg-steam-green/10 text-steam-green ring-steam-green/40'
           : 'bg-red-500/10 text-red-400 ring-red-500/40'
