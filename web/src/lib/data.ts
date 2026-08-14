@@ -41,6 +41,11 @@ export function getLatest(): MAURecord | null {
   return records[records.length - 1]
 }
 
+export function getPrevious(): MAURecord | null {
+  if (records.length < 2) return null
+  return records[records.length - 2]
+}
+
 export function getCount(): number {
   return records.length
 }

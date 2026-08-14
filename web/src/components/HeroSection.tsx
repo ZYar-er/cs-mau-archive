@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import type { MAURecord } from '../types'
-import { fmtNum } from '../lib/format'
+import { getPrevious } from '../lib/data'
 import QuickStats from './QuickStats'
+import AnimatedNumber from './AnimatedNumber'
 import { useI18n } from '../lib/i18n'
 
 interface Props {
@@ -21,6 +22,7 @@ export default function HeroSection({
   const endYear = Number(latest.date.slice(0, 4))
   const yoyPositive = yoyGrowth != null && Number(yoyGrowth) >= 0
   const momPositive = momGrowth != null && Number(momGrowth) >= 0
+  const prev = getPrevious()
   const apiTimestamp = latest.api_timestamp
   const apiDate = apiTimestamp
     ? locale.startsWith('zh')
@@ -52,35 +54,38 @@ export default function HeroSection({
     <div className="mx-auto mt-3 max-w-7xl px-4 sm:px-6">
       <div className="flex flex-col gap-2 lg:flex-row">
         {/* Hero MAU */}
-        <div className="flex flex-1 flex-col justify-center overflow-hidden rounded-sm bg-steam-elevated px-5 py-4 shadow-steam-lg ring-1 ring-steam-border/50">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-[0.25em] text-steam-muted sm:text-sm">
-            {t('heroTitle')}
-          </p>
-          <p className="steam-text-shimmer bg-gradient-to-r from-steam-blue-bright via-steam-blue-mid to-steam-blue-deep bg-clip-text text-3xl font-bold tracking-tight tabular-nums text-transparent min-[360px]:text-4xl sm:text-5xl lg:text-6xl">
-            {fmtNum(latest.mau)}
-          </p>
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-steam-muted sm:text-base">
-            <span>{t('asOf').replace('{date}', asOfDate)}</span>
-            {momGrowth && (
-              <span
-                className={`tabular-nums ${
-                  momPositive ? 'text-steam-green' : 'text-red-400'
-                }`}
-              >
-                {t('mom')} {momPositive ? '+' : ''}
-                {momGrowth}%
+        <div className="relative flex flex-1 flex-col justify-center overflow-hidden rounded-sm bg-steam-elevated px-5 py-4 shadow-steam-lg ring-1 ring-steam-border/50">
+          <div aria-hidden className="hero-glow" />
+          <div className="relative">
+            <div className="mb-1 flex flex-wrap items-center gap-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-steam-muted sm:text-sm">
+                {t('heroTitle')}
+              </p>
+              <span className="rounded-sm bg-steam-control/40 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-steam-blue-bright ring-1 ring-steam-blue/30">
+                {latest.game_version.toUpperCase()}
               </span>
-            )}
-            {yoyGrowth && (
-              <span
-                className={`tabular-nums ${
-                  yoyPositive ? 'text-steam-green' : 'text-red-400'
-                }`}
-              >
-                {t('yoy')} {yoyPositive ? '+' : ''}
-                {yoyGrowth}%
-              </span>
-            )}
+            </div>
+            <p className="steam-text-shimmer bg-gradient-to-r from-steam-blue-bright via-steam-blue-mid to-steam-blue-deep bg-clip-text text-3xl font-bold tracking-tight tabular-nums whitespace-nowrap text-transparent min-[360px]:text-4xl sm:text-5xl lg:text-6xl">
+              <AnimatedNumber value={latest.mau} from={prev?.mau} />
+            </p>
+            <div className="mt-3 h-px bg-gradient-to-r from-steam-blue-bright/60 via-steam-blue/25 to-transparent" />
+            <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-steam-muted sm:text-base">
+              <span>{t('asOf').replace('{date}', asOfDate)}</span>
+              {momGrowth && (
+                <GrowthBadge
+                  label={t('mom')}
+                  value={momGrowth}
+                  positive={momPositive}
+                />
+              )}
+              {yoyGrowth && (
+                <GrowthBadge
+                  label={t('yoy')}
+                  value={yoyGrowth}
+                  positive={yoyPositive}
+                />
+              )}
+            </div>
           </div>
         </div>
 
@@ -125,6 +130,36 @@ export default function HeroSection({
         </div>
       </div>
     </div>
+  )
+}
+
+function GrowthBadge({
+  label,
+  value,
+  positive,
+}: {
+  label: string
+  value: string
+  positive: boolean
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-sm px-1.5 py-0.5 text-xs font-medium tabular-nums ring-1 sm:text-sm ${
+        positive
+          ? 'bg-steam-green/10 text-steam-green ring-steam-green/40'
+          : 'bg-red-500/10 text-red-400 ring-red-500/40'
+      }`}
+    >
+      <svg
+        viewBox="0 0 10 10"
+        aria-hidden
+        className={`h-2 w-2 shrink-0 ${positive ? '' : 'rotate-180'}`}
+      >
+        <path d="M5 1 L9 8 H1 Z" fill="currentColor" />
+      </svg>
+      {label} {positive ? '+' : ''}
+      {value}%
+    </span>
   )
 }
 

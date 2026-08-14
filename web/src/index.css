@@ -55,3 +55,28 @@ body {
     background-position: 100% 50%;
   }
 }
+
+/* Hero big-number glow. Alpha-only gradient (single hue → transparent): no
+   color interpolation, so low-gamut (sRGB) screens get no banding; no blur
+   filter, which is another common banding source. Conservative by default,
+   enhanced only on wide-gamut displays via progressive enhancement. */
+.hero-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    55% 50% at 50% 38%,
+    rgb(102 192 244 / 0.14),
+    transparent 72%
+  );
+}
+
+@media (color-gamut: p3) {
+  .hero-glow {
+    background: radial-gradient(
+      62% 56% at 50% 38%,
+      rgb(102 192 244 / 0.22),
+      transparent 76%
+    );
+  }
+}
