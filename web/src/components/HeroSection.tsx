@@ -70,7 +70,7 @@ export default function HeroSection({
               {latest.game_version.toUpperCase()}
             </span>
           </h1>
-            <p className="hero-number-glow steam-text-shimmer bg-gradient-to-r from-steam-blue-bright via-steam-blue-mid to-steam-blue-deep bg-clip-text text-3xl font-bold tracking-tight tabular-nums whitespace-nowrap text-transparent min-[360px]:text-4xl sm:text-5xl lg:text-6xl">
+            <p className="bg-gradient-to-r from-steam-blue-bright via-steam-blue to-steam-blue-mid bg-clip-text text-3xl font-bold tracking-tight tabular-nums whitespace-nowrap text-transparent min-[360px]:text-4xl sm:text-5xl lg:text-6xl">
               <AnimatedNumber value={latest.mau} from={prev?.mau} />
             </p>
             <div className="mt-3 h-px bg-gradient-to-r from-steam-blue-bright/60 via-steam-blue/25 to-transparent" />

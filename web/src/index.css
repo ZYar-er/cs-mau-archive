@@ -40,29 +40,3 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-steam-control);
 }
-
-.steam-text-shimmer {
-  background-size: 200% 100%;
-  animation: steam-text-shimmer 8s ease-in-out infinite;
-}
-
-@keyframes steam-text-shimmer {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-/* Hero big-number glow.
-   Best practice for glowing gradient text: text-shadow paints ON TOP of
-   background-clip:text glyphs (Chromium issue 354087606) and washes them out,
-   so use filter: drop-shadow() instead — it follows the rendered glyph alpha
-   and hugs the digits. Layered: tight bright core + wide soft halo. Small
-   radius/low alpha keeps low-gamut (sRGB) screens banding-free. */
-.hero-number-glow {
-  filter: drop-shadow(0 0 10px rgb(102 192 244 / 0.4))
-    drop-shadow(0 0 28px rgb(102 192 244 / 0.18));
-}
