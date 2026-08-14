@@ -10,6 +10,8 @@ Historical monthly active users (MAU) for Counter-Strike (CS:GO → CS2), scrape
 - `data/daily.json` — latest monthly record from the Steam API
 - `data/current.json` — single most-recent record
 
+The live site also serves the **merged full dataset** at [`https://csmau.zyar.top/data/all.json`](https://csmau.zyar.top/data/all.json) (history + daily, de-duplicated by month, generated at build time by `web/scripts/gen-seo.mjs`) — use this instead of the split files for analysis.
+
 Steam API endpoint: `https://api.steampowered.com/ICSGOServers_730/GetMonthlyPlayerCount/v1` — publishes monthly on the 1st at 07:00 UTC.
 
 ## Web

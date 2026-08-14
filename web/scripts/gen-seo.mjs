@@ -98,6 +98,11 @@ const datasetJsonLd = latest
       distribution: [
         {
           '@type': 'DataDownload',
+          contentUrl: `${SITE}/data/all.json`,
+          encodingFormat: 'application/json',
+        },
+        {
+          '@type': 'DataDownload',
           contentUrl: `${SITE}/data/history.json`,
           encodingFormat: 'application/json',
         },
@@ -232,5 +237,16 @@ cpSync(dataDir, resolve(publicDir, 'data'), {
   filter: (src) => !src.includes('__pycache__'),
 })
 console.log('[gen-seo] copied data/*.json -> web/public/data/')
+
+// --- merged full dataset (all.json) ---
+// history.json (archive era) + daily.json (live API era) merged by month,
+// daily overriding history — the same policy as web/src/lib/data.ts. This is
+// the complete dataset consumers should use; the split files stay available.
+const merged = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date))
+writeIfChanged(
+  resolve(publicDir, 'data', 'all.json'),
+  `${JSON.stringify(merged, null, 2)}\n`,
+)
+console.log(`[gen-seo] wrote all.json with ${merged.length} merged records`)
 
 console.log('[gen-seo] done.')
