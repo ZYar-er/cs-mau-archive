@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { MAURecord } from '../types'
 import { getPrevious } from '../lib/data'
+import { fmtNum } from '../lib/format'
 import QuickStats from './QuickStats'
 import AnimatedNumber from './AnimatedNumber'
 import { useI18n } from '../lib/i18n'
@@ -55,14 +56,20 @@ export default function HeroSection({
       <div className="flex flex-col gap-2 lg:flex-row">
         {/* Hero MAU */}
         <div className="flex flex-1 flex-col justify-center overflow-hidden rounded-sm bg-steam-elevated px-5 py-4 shadow-steam-lg ring-1 ring-steam-border/50">
-          <div className="mb-1 flex flex-wrap items-center gap-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.25em] text-steam-muted sm:text-sm">
-                {t('heroTitle')}
-              </p>
-              <span className="rounded-sm bg-steam-control/40 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-steam-blue-bright ring-1 ring-steam-blue/30">
-                {latest.game_version.toUpperCase()}
-              </span>
-            </div>
+          <h1 className="mb-1 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-steam-muted sm:text-sm">
+            {t('heroTitle')}
+            {/* Bing/Google require an h1 with topic keywords; the visible
+                label is short, so the exact figure rides along for crawlers
+                and screen readers (visually hidden, not cloaking). */}
+            <span className="sr-only">
+              {locale.startsWith('zh')
+                ? `：${fmtNum(latest.mau)} 名玩家（${asOfDate}）`
+                : `: ${fmtNum(latest.mau)} players (${asOfDate})`}
+            </span>
+            <span className="rounded-sm bg-steam-control/40 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-steam-blue-bright ring-1 ring-steam-blue/30">
+              {latest.game_version.toUpperCase()}
+            </span>
+          </h1>
             <p className="hero-number-glow steam-text-shimmer bg-gradient-to-r from-steam-blue-bright via-steam-blue-mid to-steam-blue-deep bg-clip-text text-3xl font-bold tracking-tight tabular-nums whitespace-nowrap text-transparent min-[360px]:text-4xl sm:text-5xl lg:text-6xl">
               <AnimatedNumber value={latest.mau} from={prev?.mau} />
             </p>
