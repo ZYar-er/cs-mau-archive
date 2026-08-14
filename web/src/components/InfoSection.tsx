@@ -52,7 +52,7 @@ export default function InfoSection({ records }: { records: MAURecord[] }) {
         <h3 className="mt-4 text-sm font-semibold text-steam-blue-bright">
           {t('methodTitle')}
         </h3>
-        <div className="mt-1.5 space-y-2 text-sm leading-relaxed text-steam-muted">
+        <div className="mt-1.5 space-y-2 text-sm leading-relaxed text-steam-muted [overflow-wrap:anywhere]">
           <p>{t('methodP1')}</p>
           <p>{t('methodP2')}</p>
           <p>{fill(t('methodP3'), { count, range })}</p>
@@ -133,7 +133,7 @@ export default function InfoSection({ records }: { records: MAURecord[] }) {
               <summary className="cursor-pointer text-sm font-medium text-steam-text">
                 {t(q)}
               </summary>
-              <p className="mt-1.5 text-sm leading-relaxed text-steam-muted">
+              <p className="mt-1.5 text-sm leading-relaxed text-steam-muted [overflow-wrap:anywhere]">
                 {fill(t(a), vars as Record<string, string>)}
               </p>
             </details>
