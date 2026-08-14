@@ -54,10 +54,8 @@ export default function HeroSection({
     <div className="mx-auto mt-3 max-w-7xl px-4 sm:px-6">
       <div className="flex flex-col gap-2 lg:flex-row">
         {/* Hero MAU */}
-        <div className="relative flex flex-1 flex-col justify-center overflow-hidden rounded-sm bg-steam-elevated px-5 py-4 shadow-steam-lg ring-1 ring-steam-border/50">
-          <div aria-hidden className="hero-glow" />
-          <div className="relative">
-            <div className="mb-1 flex flex-wrap items-center gap-2">
+        <div className="flex flex-1 flex-col justify-center overflow-hidden rounded-sm bg-steam-elevated px-5 py-4 shadow-steam-lg ring-1 ring-steam-border/50">
+          <div className="mb-1 flex flex-wrap items-center gap-2">
               <p className="text-xs font-semibold uppercase tracking-[0.25em] text-steam-muted sm:text-sm">
                 {t('heroTitle')}
               </p>
@@ -65,7 +63,7 @@ export default function HeroSection({
                 {latest.game_version.toUpperCase()}
               </span>
             </div>
-            <p className="steam-text-shimmer bg-gradient-to-r from-steam-blue-bright via-steam-blue-mid to-steam-blue-deep bg-clip-text text-3xl font-bold tracking-tight tabular-nums whitespace-nowrap text-transparent min-[360px]:text-4xl sm:text-5xl lg:text-6xl">
+            <p className="hero-number-glow steam-text-shimmer bg-gradient-to-r from-steam-blue-bright via-steam-blue-mid to-steam-blue-deep bg-clip-text text-3xl font-bold tracking-tight tabular-nums whitespace-nowrap text-transparent min-[360px]:text-4xl sm:text-5xl lg:text-6xl">
               <AnimatedNumber value={latest.mau} from={prev?.mau} />
             </p>
             <div className="mt-3 h-px bg-gradient-to-r from-steam-blue-bright/60 via-steam-blue/25 to-transparent" />
@@ -86,7 +84,6 @@ export default function HeroSection({
                 />
               )}
             </div>
-          </div>
         </div>
 
         {/* Meta sidebar */}
