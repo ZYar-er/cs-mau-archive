@@ -1,9 +1,9 @@
 """Generate the site's favicon set from the 16x16 vector design.
 
 The favicon is the same mark as web/public/favicon.svg (blue ring + play
-triangle, #66c0f4). This script renders it with 4x4 supersampling into
-PNG/ICO files committed to web/public/ — no runtime dependency, so Cloudflare
-Pages never needs a Python image stack at build time.
+triangle, #66c0f4). This script renders it with 4x4 supersampling into PNG
+files and a classic BMP-frame ICO committed to web/public/ — no runtime
+dependency, so Cloudflare Pages never needs a Python image stack at build time.
 
 Usage:  python3 web/scripts/gen-icons.py
 Output: web/public/favicon.ico (16/32/48), favicon-32x32.png,
@@ -81,30 +81,43 @@ def write_png(path: Path, size: int) -> None:
 
 
 def write_ico(path: Path, sizes: list[int]) -> None:
-    """ICO container with PNG-compressed entries (supported everywhere modern)."""
-    payloads = [render(s) for s in sizes]
-    pngs = []
-    for size, raw in zip(sizes, payloads):
-        def chunk(tag: bytes, data: bytes) -> bytes:
-            return (
-                struct.pack(">I", len(data))
-                + tag
-                + data
-                + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
-            )
-        ihdr = struct.pack(">IIBBBBB", size, size, 8, 6, 0, 0, 0)
-        scanlines = b"".join(b"\x00" + raw[y * size * 4 : (y + 1) * size * 4] for y in range(size))
-        pngs.append(
-            b"\x89PNG\r\n\x1a\n"
-            + chunk(b"IHDR", ihdr)
-            + chunk(b"IDAT", zlib.compress(scanlines, 9))
-            + chunk(b"IEND", b"")
+    """Build a maximally compatible ICO with uncompressed 32-bit BMP frames."""
+    payloads: list[bytes] = []
+
+    for size in sizes:
+        source = render(size)
+        pixels = bytearray()
+        for row in range(size - 1, -1, -1):
+            for column in range(size):
+                red, green, blue, alpha = source[
+                    (row * size + column) * 4 :
+                    (row * size + column + 1) * 4
+                ]
+                pixels.extend((blue, green, red, alpha))
+
+        # ICO BMP frames double the biHeight for XOR + AND masks. A 1-bit mask
+        # is required even though 32-bit pixels already carry alpha; older
+        # parsers expect it, while modern browsers prefer the alpha channel.
+        mask_stride = (size + 31) // 32 * 4
+        mask_row = b"\x00" * mask_stride
+        pixels.extend(mask_row * size)
+        header = struct.pack(
+            "<IiiHHII",
+            40,
+            size,
+            size * 2,
+            1,
+            32,
+            0,
+            len(pixels),
         )
+        # biXPelsPerMeter through biClrImportant complete the 40-byte header.
+        payloads.append(header + b"\x00" * 16 + bytes(pixels))
 
     header = struct.pack("<HHH", 0, 1, len(sizes))
     offset = 6 + 16 * len(sizes)
     entries = b""
-    for size, png in zip(sizes, pngs):
+    for size, bitmap in zip(sizes, payloads):
         entries += struct.pack(
             "<BBBBHHII",
             size if size < 256 else 0,
@@ -113,12 +126,12 @@ def write_ico(path: Path, sizes: list[int]) -> None:
             0,
             1,
             32,
-            len(png),
+            len(bitmap),
             offset,
         )
-        offset += len(png)
-    path.write_bytes(header + entries + b"".join(pngs))
-    print(f"  {path.name}: ICO with {sizes}")
+        offset += len(bitmap)
+    path.write_bytes(header + entries + b"".join(payloads))
+    print(f"  {path.name}: BMP ICO with {sizes}")
 
 
 def main() -> None:
