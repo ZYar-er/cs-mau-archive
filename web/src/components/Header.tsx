@@ -1,7 +1,8 @@
 import { useI18n } from '../lib/i18n'
 
 export default function Header() {
-  const { t, lang, setLang } = useI18n()
+  const { t, lang } = useI18n()
+  const languageHref = lang === 'en' ? '/zh/' : '/'
 
   return (
     <header className="bg-steam-nav pt-[env(safe-area-inset-top)] shadow-steam-lg">
@@ -19,14 +20,13 @@ export default function Header() {
           </span>
         </div>
         <div className="ml-auto flex items-center gap-2 text-xs text-steam-muted sm:gap-3 sm:text-sm">
-          <button
-            type="button"
-            onClick={() => setLang(lang === 'en' ? 'zh' : 'en')}
+          <a
+            href={languageHref}
             aria-label={lang === 'en' ? t('switchToZh') : t('switchToEn')}
             className="rounded-sm bg-steam-card px-2 py-2 uppercase tracking-wider transition-colors hover:bg-steam-control/50 hover:text-steam-text"
           >
             {lang === 'en' ? '中文' : 'EN'}
-          </button>
+          </a>
           <a
             href="https://github.com/ZYar-er/cs-mau-archive"
             target="_blank"

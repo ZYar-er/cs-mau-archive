@@ -1,0 +1,2 @@
+# Canonical localized routes avoid a duplicate slashless URL.
+/zh /zh/ 301

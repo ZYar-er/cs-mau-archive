@@ -1,8 +1,6 @@
 import {
   createContext,
-  useCallback,
   useContext,
-  useEffect,
   useState,
   type ReactNode,
 } from 'react'
@@ -12,7 +10,7 @@ export type Lang = 'en' | 'zh'
 const en = {
   subtitle: 'Counter-Strike Monthly Players',
   githubAria: 'GitHub repository',
-  heroTitle: 'Monthly Players',
+  heroTitle: 'CS2 Monthly Players',
   asOf: 'as of {date}',
   mom: 'MoM',
   yoy: 'YoY',
@@ -82,7 +80,7 @@ export type TKey = keyof typeof en
 const zh: Record<TKey, string> = {
   subtitle: '反恐精英每月玩家数',
   githubAria: 'GitHub 仓库',
-  heroTitle: '每月玩家数',
+  heroTitle: 'CS2 每月玩家数',
   asOf: '截至 {date}',
   mom: '环比',
   yoy: '同比',
@@ -152,53 +150,36 @@ export type Translator = (key: TKey) => string
 
 interface I18nContextValue {
   lang: Lang
-  setLang: (lang: Lang) => void
   t: Translator
   locale: string
 }
 
-const STORAGE_KEY = 'cs-mau-lang'
-
 const I18nContext = createContext<I18nContextValue | null>(null)
 
-export function I18nProvider({ children }: { children: ReactNode }) {
-  // SSR-safe: prerendered HTML is always English and hydration must match it,
-  // so the initial state is 'en'. The user's real preference (?lang= param,
-  // saved choice, or browser language) is applied in an effect right after
-  // hydration — one frame later, with no hydration mismatch.
-  const [lang, setLangState] = useState<Lang>('en')
+function getDocumentLang(): Lang {
+  return typeof document !== 'undefined' &&
+    document.documentElement.lang.toLowerCase().startsWith('zh')
+    ? 'zh'
+    : 'en'
+}
 
-  useEffect(() => {
-    let next: Lang | null = null
-    try {
-      const param = new URLSearchParams(window.location.search).get('lang')
-      if (param === 'en' || param === 'zh') {
-        next = param
-      } else {
-        const saved = localStorage.getItem(STORAGE_KEY)
-        if (saved === 'en' || saved === 'zh') {
-          next = saved
-        } else if (navigator.language.toLowerCase().startsWith('zh')) {
-          next = 'zh'
-        }
-      }
-    } catch {}
-    if (next) setLangState((prev) => (prev === next ? prev : next))
-  }, [])
+interface I18nProviderProps {
+  children: ReactNode
+  initialLang?: Lang
+}
 
-  useEffect(() => {
-    document.documentElement.lang = lang
-    try {
-      localStorage.setItem(STORAGE_KEY, lang)
-    } catch {}
-  }, [lang])
-
-  const setLang = useCallback((next: Lang) => setLangState(next), [])
-  const t = useCallback<Translator>((key) => dictionaries[lang][key], [lang])
+export function I18nProvider({ children, initialLang }: I18nProviderProps) {
+  // Each localized document declares its language before hydration. Passing a
+  // build-time initialLang keeps SSR and client hydration identical.
+  const [lang] = useState<Lang>(
+    () => initialLang ?? getDocumentLang(),
+  )
+  const getTranslation = dictionaries[lang]
+  const t: Translator = (key) => getTranslation[key]
 
   return (
     <I18nContext.Provider
-      value={{ lang, setLang, t, locale: lang === 'zh' ? 'zh-CN' : 'en-US' }}
+      value={{ lang, t, locale: lang === 'zh' ? 'zh-CN' : 'en-US' }}
     >
       {children}
     </I18nContext.Provider>

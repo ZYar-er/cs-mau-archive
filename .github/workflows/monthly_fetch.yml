@@ -26,6 +26,24 @@ jobs:
       - name: Fetch monthly MAU
         run: python scripts/fetch_monthly.py
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: "web/package-lock.json"
+
+      - name: Install renderer dependency
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
+
+      - name: Install frontend dependencies
+        run: npm ci
+        working-directory: web
+
+      - name: Refresh social card
+        run: node scripts/social-card.mjs --strict
+        working-directory: web
+
       - name: Commit and push if changed
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
@@ -33,6 +51,6 @@ jobs:
           # which would prevent the site from ever seeing fresh data. The
           # workflow has no `on: push` trigger, so no loop risk.
           commit_message: "data: update MAU"
-          file_pattern: "data/*.json"
+          file_pattern: "data/*.json web/public/social-card.png"
           commit_user_name: "github-actions[bot]"
           commit_user_email: "github-actions[bot]@users.noreply.github.com"

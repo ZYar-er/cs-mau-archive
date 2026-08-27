@@ -4,6 +4,17 @@ import './index.css'
 import App from './App'
 import { I18nProvider } from './lib/i18n'
 
+// Migrate the former query-based language switch to canonical localized paths.
+if (typeof window !== 'undefined') {
+  const requestedLang = new URLSearchParams(window.location.search).get('lang')
+  const isZhPath = window.location.pathname === '/zh/'
+  if (requestedLang === 'zh' && !isZhPath) {
+    window.location.replace('/zh/')
+  } else if (requestedLang === 'en' && isZhPath) {
+    window.location.replace('/')
+  }
+}
+
 const container = document.getElementById('app')!
 const tree = (
   <StrictMode>

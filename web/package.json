@@ -5,10 +5,11 @@
   "type": "module",
   "homepage": "https://csmau.zyar.top/",
   "scripts": {
-    "predev": "node scripts/copy-data.mjs && node scripts/gen-seo.mjs",
+    "predev": "node scripts/copy-data.mjs && node scripts/gen-seo.mjs && node scripts/social-card.mjs",
     "dev": "vite",
     "prebuild": "node scripts/copy-data.mjs && node scripts/gen-seo.mjs",
     "build": "tsc && vite build && node scripts/render-ssr.mjs",
+    "postbuild": "node scripts/social-card.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {
