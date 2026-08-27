@@ -412,12 +412,13 @@ export default function MAUChart({ records }: Props) {
       const s = Number(dz.startValue)
       const e = Number(dz.endValue)
 
-      // Expand manual zoom windows outward to whole months: floor the left
-      // edge and ceil the right edge, so more data is shown instead of
-      // shrinking the window. Button-driven windows are already aligned.
+      // Snap each handle independently, without widening the selected range:
+      // floor/ceil both edges would pull an inside boundary out to the nearest
+      // enclosing monthly record on every side. Range buttons already use
+      // exact record dates and pass through this branch unchanged.
       if (!fromBtn && !snapRef.current) {
         const sSnap = snapRecordTs(s, 'floor')
-        const eSnap = snapRecordTs(e, 'ceil')
+        const eSnap = snapRecordTs(e, 'floor')
         if (sSnap !== s || eSnap !== e) {
           snapRef.current = true
           chart.dispatchAction({
