@@ -353,7 +353,7 @@ export default function MAUChart({ records }: Props) {
         axisLabel: {
           color: '#8f98a0',
           fontSize: compact ? 9 : 12,
-          formatter: (v: number) => fmtMAU(v),
+          formatter: (v: number) => fmtMAU(Math.round(v)),
         },
         splitLine: { lineStyle: { color: '#2a3f5a', type: 'dashed' as const } },
       },
