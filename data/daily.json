@@ -12,5 +12,12 @@
     "game_version": "cs2",
     "source": "steam_api",
     "api_timestamp": "2026-08-01T07:00:00Z"
+  },
+  {
+    "date": "2026-08-01",
+    "mau": 29995883,
+    "game_version": "cs2",
+    "source": "steam_api",
+    "api_timestamp": "2026-09-01T07:00:00Z"
   }
 ]
