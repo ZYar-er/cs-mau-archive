@@ -2,7 +2,7 @@ name: Monthly CS MAU Fetch
 
 on:
   schedule:
-    - cron: "0 9 1 * *"  # 1st, 09:00 UTC (API publishes 07:00 UTC; 2h margin)
+    - cron: "15 8 1 * *"  # 1st, 08:15 UTC (API publishes 07:00 UTC; 2h margin)
   workflow_dispatch:       # allow manual trigger
 
 permissions:
