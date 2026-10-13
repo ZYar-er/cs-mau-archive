@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- Dev-only entry. Deliberately absent from vite.config.ts's
+         rollupOptions.input, so `vite build` never sees it and nothing here
+         can reach dist/ or the production pages. Open it with `npm run lab`. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Style Lab · CS MAU Tracker</title>
+  </head>
+  <body>
+    <div id="lab-root"></div>
+    <script type="module" src="/src/lab/main.tsx"></script>
+  </body>
+</html>

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react'
 import type { MAURecord } from '../types'
 import { getPrevious } from '../lib/data'
-import { fmtNum } from '../lib/format'
+import { fmtNum, fmtGameVersion } from '../lib/format'
 import QuickStats from './QuickStats'
 import AnimatedNumber from './AnimatedNumber'
 import { useI18n } from '../lib/i18n'
@@ -67,7 +67,7 @@ export default function HeroSection({
                 : `: ${fmtNum(latest.mau)} players (${asOfDate})`}
             </span>
             <span className="rounded-sm bg-steam-control/40 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-steam-blue-bright ring-1 ring-steam-blue/30">
-              {latest.game_version.toUpperCase()}
+              {fmtGameVersion(latest.game_version)}
             </span>
           </h1>
             <p className="bg-gradient-to-r from-steam-blue-bright via-steam-blue to-steam-blue-mid bg-clip-text text-3xl font-bold tracking-tight tabular-nums whitespace-nowrap text-transparent min-[360px]:text-4xl sm:text-5xl lg:text-6xl">

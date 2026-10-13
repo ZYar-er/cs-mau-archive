@@ -126,17 +126,19 @@ export default function InfoSection({ records }: { records: MAURecord[] }) {
               ['faq4q', 'faq4a', {}],
             ] as const
           ).map(([q, a, vars]) => (
-            <details
+            // Plain block, not <details>: the FAQ is read, not folded away.
+            // It also keeps the answers visible rather than behind a closed
+            // disclosure, which is what the FAQPage JSON-LD in gen-seo.mjs
+            // describes for crawlers.
+            <div
               key={q}
               className="rounded-sm bg-steam-elevated px-4 py-3 ring-1 ring-steam-border/50"
             >
-              <summary className="cursor-pointer text-sm font-medium text-steam-text">
-                {t(q)}
-              </summary>
+              <p className="text-sm font-medium text-steam-text">{t(q)}</p>
               <p className="mt-1.5 text-sm leading-relaxed text-steam-muted [overflow-wrap:anywhere]">
                 {fill(t(a), vars as Record<string, string>)}
               </p>
-            </details>
+            </div>
           ))}
         </div>
       </div>

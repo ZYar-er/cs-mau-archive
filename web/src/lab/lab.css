@@ -1,0 +1,12 @@
+/* Lab entry stylesheet.
+ *
+ * Pulls in the production theme so a card may reuse the existing steam-*
+ * tokens, then overrides the one bit of it that is genuinely global: the page
+ * backdrop. A card has to be judged on its own palette, and the lab chrome on
+ * a neutral one.
+ */
+@import '../index.css';
+
+body {
+  background: #0b0d10;
+}

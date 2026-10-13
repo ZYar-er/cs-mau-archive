@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useState,
   type ReactNode,
@@ -17,7 +18,7 @@ const en = {
   game: 'Game',
   sourcePrefix: 'source: {source}',
   archive: 'Archive',
-  recordsSub: 'records · {range}',
+  recordsSub: 'records {range}',
   apiUpdated: 'API Updated',
   peak: 'Peak',
   cs2Average: 'CS2 Average',
@@ -31,7 +32,9 @@ const en = {
   average: 'Average',
   cs2Avg: 'CS2 Avg',
   mau: 'Monthly Players',
+  mauShort: 'MAU',
   avg6: '6-Month Avg',
+  avg6Short: '6M avg',
   eventCsgo: 'CS:GO',
   eventF2p: 'F2P',
   eventCs2Ann: 'CS2 Ann.',
@@ -47,7 +50,7 @@ const en = {
   aboutTitle: 'About This Data',
   methodTitle: 'Methodology',
   methodP1:
-    'Monthly Active Users (MAU) counts the unique players who played Counter-Strike in the last month, as published by Valve through the official Steam Web API (ICSGOServers_730/GetMonthlyPlayerCount/v1) that powers counter-strike.net.',
+    'We track Counter-Strike player data in total. It uses an API provided by Valve to determine the number of unique Steam accounts which have played Counter-Strike in the last month. This is the number shown on the Counter-Strike Website and we\'re logging that here.',
   methodP2:
     'Years before that API existed are recovered from historical snapshots of counter-strike.net preserved in the Wayback Machine, then merged with API records and de-duplicated by month.',
   methodP3:
@@ -87,7 +90,7 @@ const zh: Record<TKey, string> = {
   game: '游戏版本',
   sourcePrefix: '来源：{source}',
   archive: '存档',
-  recordsSub: '记录 · {range}',
+  recordsSub: '记录 {range}',
   apiUpdated: 'API 更新时间',
   peak: '峰值',
   cs2Average: 'CS2 平均值',
@@ -101,7 +104,9 @@ const zh: Record<TKey, string> = {
   average: '平均值',
   cs2Avg: 'CS2 均值',
   mau: '每月玩家数',
+  mauShort: 'MAU',
   avg6: '6 个月均值',
+  avg6Short: '6月均值',
   eventCsgo: 'CS:GO',
   eventF2p: 'F2P',
   eventCs2Ann: 'CS2 公布',
@@ -117,7 +122,7 @@ const zh: Record<TKey, string> = {
   aboutTitle: '关于数据',
   methodTitle: '数据口径',
   methodP1:
-    '月活跃用户（MAU）统计最近一个月内玩过反恐精英的独立玩家数，由 Valve 通过官方 Steam Web API（ICSGOServers_730/GetMonthlyPlayerCount/v1，即 counter-strike.net 的数据源）发布。',
+    '追踪《反恐精英》的总体玩家数据。它利用 Valve 提供的 API，统计过去一个月内曾游玩《反恐精英》的独立 Steam 账号数量。该数据即《反恐精英》官网上显示的数字，我们在此进行记录。',
   methodP2:
     '该 API 出现之前的年份，由 Wayback Machine 保存的 counter-strike.net 历史快照恢复，再与 API 记录合并并按月份去重。',
   methodP3:
@@ -150,6 +155,12 @@ export type Translator = (key: TKey) => string
 
 interface I18nContextValue {
   lang: Lang
+  /**
+   * Switch language in place, without a navigation. Whoever calls this owns
+   * the URL: the shipping Header rewrites the localized path with
+   * `replaceState`, the lab rewrites its own `?lang=` query.
+   */
+  setLang: (next: Lang) => void
   t: Translator
   locale: string
 }
@@ -170,16 +181,26 @@ interface I18nProviderProps {
 
 export function I18nProvider({ children, initialLang }: I18nProviderProps) {
   // Each localized document declares its language before hydration. Passing a
-  // build-time initialLang keeps SSR and client hydration identical.
-  const [lang] = useState<Lang>(
+  // build-time initialLang keeps SSR and client hydration identical; switching
+  // happens after mount, from the header's language control.
+  const [lang, setLangState] = useState<Lang>(
     () => initialLang ?? getDocumentLang(),
   )
+
+  const setLang = useCallback((next: Lang) => {
+    setLangState(next)
+    // Keep the document honest for assistive tech and :lang() selectors. On
+    // the shipping pages the prerendered value already matches, so this is a
+    // no-op until the visitor actually switches.
+    document.documentElement.lang = next === 'zh' ? 'zh-CN' : 'en'
+  }, [])
+
   const getTranslation = dictionaries[lang]
   const t: Translator = (key) => getTranslation[key]
 
   return (
     <I18nContext.Provider
-      value={{ lang, t, locale: lang === 'zh' ? 'zh-CN' : 'en-US' }}
+      value={{ lang, setLang, t, locale: lang === 'zh' ? 'zh-CN' : 'en-US' }}
     >
       {children}
     </I18nContext.Provider>

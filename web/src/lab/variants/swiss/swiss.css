@@ -1,0 +1,584 @@
+/* Card 02 — Swiss Style / International Typographic Style.
+ *
+ * Scoped plain CSS rather than Tailwind utilities: the card's premise *is* a
+ * 12-column grid, a two-weight type scale and flat black/paper/red. Expressing
+ * that as per-element utility strings would hide the very system the card is
+ * meant to demonstrate.
+ *
+ * Every selector is scoped to .v-swiss — the variant shares a document with
+ * the lab switcher (docs/lab.md, 工程). No shadows, no gradients, no radii:
+ * flat fills only.
+ *
+ * Contrast note: --red on --paper is 4.32:1, just under the 4.5:1 WCAG asks for
+ * text below 18.66px bold. The section titles, the hero label and the timeline
+ * indices are 10–14px red and so sit under that line. Keeping the style card's
+ * #DA291C was a deliberate call (darkening to ~#d4281b would clear 4.5:1), so
+ * treat this as an accepted deviation, not a bug to fix. --ink on --paper is
+ * 16.76:1.
+ */
+
+.v-swiss {
+  --paper: #f4f1ec;
+  --ink: #111111;
+  --red: #da291c;
+  --rule: #cfcac2;
+  --fill: #e6e1d8;
+  --gutter: clamp(8px, 1.5vw, 20px);
+  /* One knob for the card's whole type scale — every font-size below reads
+     from it. Header and Footer are deliberately outside it: their type is the
+     shipping chrome's, and this card only re-skins their colour. */
+  --type-scale: 1.1;
+
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  /* Neo-grotesque only: Helvetica and its metric relatives. No webfont is
+     loaded, so this resolves to whatever grotesque the OS has. */
+  font-family: 'Neue Haas Grotesk Display Pro', 'Neue Haas Grotesk Text Pro',
+    'Helvetica Neue', Helvetica, Inter, 'Liberation Sans', 'Nimbus Sans',
+    Arial, sans-serif;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Grid ─────────────────────────────────────────────────────────────── */
+
+.v-swiss__wrap {
+  /* Matches the shipping chrome's container (mx-auto max-w-7xl px-4 sm:px-6),
+     so the grid's outer edges line up with the reused Header and Footer. */
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .v-swiss__wrap {
+    padding-inline: 1.5rem;
+  }
+}
+
+.v-swiss__grid {
+  display: grid;
+  /* 12 columns at every width; the gutter breathes, the count does not. */
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  row-gap: clamp(16px, 2.6vw, 32px);
+  align-items: start;
+}
+
+/* Full-bleed by default. The asymmetric placement below is the sm-and-up
+   composition; below that everything stacks into the same 12 columns. */
+.v-swiss__grid > * {
+  grid-column: 1 / -1;
+}
+
+.v-swiss__rule {
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--rule);
+}
+
+/* ── Type primitives ──────────────────────────────────────────────────── */
+
+.v-swiss__label {
+  font-size: calc(0.6875rem * var(--type-scale));
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Latin labels are split per character and spread across the full column, so
+   "MOM" and "YOY" occupy the same block width instead of ending 4px apart —
+   M is simply wider than Y in any proportional face, so no font-size fixes it.
+   CJK labels (环比 / 同比) are already exactly equal — two full-width glyphs —
+   and keep the plain run, since spreading them would only add a stray gap.
+   Per-character tracking is dropped here; space-between does the distributing. */
+.v-swiss__label--spread {
+  display: flex;
+  justify-content: space-between;
+  letter-spacing: 0;
+}
+
+.v-swiss__meta {
+  font-size: calc(0.75rem * var(--type-scale));
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Header / Footer re-skin ──────────────────────────────────────────── */
+
+/* components/Header.tsx and components/Footer.tsx run unmodified here: same
+   markup, same layout, same links. Only their skin is overridden — surface,
+   type, rules. Structure and spacing stay the shipping page's on purpose so
+   every variant stays comparable against it.
+
+   Like the mau-chart-* overrides below, these are unlayered rules and so beat
+   Tailwind's @layer utilities without !important. */
+
+.v-swiss .site-header {
+  background: transparent;
+  box-shadow: none;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* CSS beats the SVG presentation attributes on the mark. */
+.v-swiss .site-header-mark circle {
+  stroke: var(--ink);
+}
+
+.v-swiss .site-header-mark path {
+  fill: var(--ink);
+}
+
+.v-swiss .site-header-title,
+.v-swiss .site-header-subtitle {
+  color: var(--ink);
+  letter-spacing: 0.16em;
+}
+
+.v-swiss .site-header-title {
+  font-weight: 700;
+}
+
+.v-swiss .site-header-subtitle {
+  font-weight: 400;
+}
+
+.v-swiss .site-header-action {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--ink);
+  letter-spacing: 0.12em;
+}
+
+.v-swiss .site-header-action:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.v-swiss .site-footer {
+  margin-top: 0;
+  background: transparent;
+  border-top: 1px solid var(--rule);
+}
+
+.v-swiss .site-footer-note,
+.v-swiss .site-footer-copyright {
+  color: var(--ink);
+  letter-spacing: 0.08em;
+}
+
+/* ── Section furniture ────────────────────────────────────────────────── */
+
+.v-swiss__section {
+  /* Band spacing, kept tight so the rules read as one stack down the page. */
+  padding-block: clamp(20px, 3vw, 46px);
+}
+
+/* The lead (hero) band keeps the roomier top — the rule under the header wants
+   some air — but its foot is tightened: the stats row sits directly above the
+   rule that opens the chart, and matching the top value there left a dead band
+   under the figures. Has to come after the rule above: same specificity, so
+   source order decides. */
+.v-swiss__section--lead {
+  padding-block-start: clamp(28px, 5vw, 76px);
+  padding-block-end: clamp(16px, 2.2vw, 30px);
+}
+
+.v-swiss__sectiontitle {
+  margin: 0;
+  font-size: calc(clamp(0.6875rem, 1.1vw, 0.8125rem) * var(--type-scale));
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────────── */
+
+/* Index numeral, label and figure are one unit. */
+.v-swiss__hero {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.v-swiss__h1 {
+  margin: 0;
+  /* A label, not a headline — the figure below is the protagonist. Sizes and
+     the label:figure ratio are the shipping page's (components/HeroSection.tsx):
+     12/30, then 14/48 at sm and 14/60 at lg. */
+  font-size: calc(0.75rem * var(--type-scale));
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.v-swiss__display {
+  display: block;
+  margin: 0;
+  /* Scales with the label above at the shipping page's ratio:
+     30 → 36 (360px) → 48 (sm) → 60 (lg). */
+  font-size: calc(1.875rem * var(--type-scale));
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 360px) {
+  .v-swiss__display {
+    font-size: calc(2.25rem * var(--type-scale));
+  }
+}
+
+@media (min-width: 640px) {
+  .v-swiss__h1 {
+    font-size: calc(0.875rem * var(--type-scale));
+  }
+  .v-swiss__display {
+    font-size: calc(3rem * var(--type-scale));
+  }
+}
+
+@media (min-width: 1024px) {
+  .v-swiss__display {
+    font-size: calc(3.75rem * var(--type-scale));
+  }
+}
+
+.v-swiss__herometa {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* On phones the facts flow onto shared lines instead of one per row, which
+   saves the block a line or two. From sm up the column is narrow but tall, so
+   they stack as before. */
+@media (max-width: 639px) {
+  .v-swiss__herometa {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+  }
+}
+
+.v-swiss__herogrowth {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.v-swiss__growth {
+  /* Three columns — label, marker, figure — so the MoM and YoY rows line up
+     down the page. In a proportional face "MOM" is wider than "YOY" (and in a
+     flex row that difference pushes each row's figure to a different x), so the
+     label column is fixed rather than content-sized. */
+  display: grid;
+  grid-template-columns: 2.25rem 10px auto;
+  align-items: baseline;
+  column-gap: 10px;
+  font-size: calc(0.8125rem * var(--type-scale));
+  font-variant-numeric: tabular-nums;
+}
+
+.v-swiss__growth-value {
+  font-size: calc(clamp(1rem, 1.6vw, 1.25rem) * var(--type-scale));
+  font-weight: 700;
+}
+
+/* ── Figures ──────────────────────────────────────────────────────────── */
+
+.v-swiss__stat {
+  padding-top: 10px;
+  border-top: 1px solid var(--rule);
+}
+
+.v-swiss__stat-label {
+  margin: 0 0 8px;
+  font-size: calc(0.625rem * var(--type-scale));
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.v-swiss__stat-value {
+  margin: 0;
+  font-size: calc(clamp(1.125rem, 2.2vw, 1.75rem) * var(--type-scale));
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.v-swiss__stat-sub {
+  margin: 6px 0 0;
+  font-size: calc(0.6875rem * var(--type-scale));
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Chart ────────────────────────────────────────────────────────────── */
+
+/* components/MAUChart.tsx runs here as-is: same lazy-loaded ECharts chunk,
+   same zoom/snapping, tooltip, range buttons and bottom stats. Only the skin
+   changes. Canvas colours arrive through its `theme` prop (SWISS_THEME in
+   index.tsx); the DOM chrome is overridden here through the `mau-chart-*`
+   hook classes. These rules are unlayered, so they beat Tailwind's
+   @layer utilities regardless of specificity. */
+
+.v-swiss .mau-chart-shell {
+  margin: 0;
+  max-width: none;
+  padding: 0;
+}
+
+.v-swiss .mau-chart-card {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.v-swiss .mau-chart-head {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.v-swiss .mau-chart-title,
+.v-swiss .mau-chart-meta {
+  font-size: calc(0.6875rem * var(--type-scale));
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+/* This is the chart section's only visible title — the section's own h2 was
+   dropped because MAUChart already prints it — so it carries the accent, the
+   same as the other section titles. The range/year note beside it stays ink. */
+.v-swiss .mau-chart-title {
+  color: var(--red);
+}
+
+.v-swiss .mau-chart-meta {
+  color: var(--ink);
+}
+
+.v-swiss .mau-chart-ranges {
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.v-swiss .mau-chart-ranges button {
+  min-height: 44px;
+  padding: 6px 10px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink);
+  font-size: calc(0.6875rem * var(--type-scale));
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.v-swiss .mau-chart-ranges button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.v-swiss .mau-chart-stats {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule);
+}
+
+.v-swiss .mau-chart-stat {
+  text-align: left;
+}
+
+.v-swiss .mau-chart-stat-label {
+  color: var(--ink);
+  font-size: calc(0.625rem * var(--type-scale));
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.v-swiss .mau-chart-stat-value {
+  color: var(--ink);
+  font-size: calc(0.8125rem * var(--type-scale));
+  font-weight: 700;
+}
+
+/* Holds the lazy chunk's place so the page doesn't jump when it lands. */
+.v-swiss__chart-fallback {
+  height: 360px;
+}
+
+@media (min-width: 640px) {
+  .v-swiss .mau-chart-ranges button {
+    min-height: 32px;
+  }
+
+  .v-swiss__chart-fallback {
+    height: 430px;
+  }
+}
+
+/* ── Timeline ─────────────────────────────────────────────────────────── */
+
+.v-swiss__timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.v-swiss__timeline-row {
+  /* The same 12 columns as everything else, so every row's index, date and
+     label edge lines up with the section heads above it. */
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  align-items: baseline;
+  padding-block: 9px;
+  border-top: 1px solid var(--rule);
+}
+
+.v-swiss__timeline-index {
+  grid-column: 1 / 2;
+  font-size: calc(0.625rem * var(--type-scale));
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--red);
+}
+
+.v-swiss__timeline-date {
+  /* Three columns, not two: at phone widths a "2012-08" label is wider than
+     two columns of the 12-column track and broke onto a second line. The
+     `nowrap` is belt-and-braces — it should never need to fire at this width. */
+  grid-column: 2 / 5;
+  font-size: calc(0.6875rem * var(--type-scale));
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.v-swiss__timeline-label {
+  grid-column: 5 / 13;
+  font-size: calc(0.8125rem * var(--type-scale));
+  line-height: 1.45;
+}
+
+/* ── Prose / FAQ ──────────────────────────────────────────────────────── */
+
+.v-swiss__prose p {
+  margin: 0 0 10px;
+  font-size: calc(0.8125rem * var(--type-scale));
+  line-height: 1.55;
+  max-width: 62ch;
+}
+
+.v-swiss__prose-title {
+  margin: 0 0 10px;
+  font-size: calc(0.625rem * var(--type-scale));
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.v-swiss__faq {
+  margin: 0;
+}
+
+.v-swiss__faq-item {
+  padding-block: 10px;
+  border-top: 1px solid var(--rule);
+}
+
+.v-swiss__faq-item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.v-swiss__faq-item dt {
+  font-size: calc(0.8125rem * var(--type-scale));
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.v-swiss__faq-item dd {
+  margin: 5px 0 0;
+  font-size: calc(0.75rem * var(--type-scale));
+  line-height: 1.5;
+}
+
+/* ── Column placement ─────────────────────────────────────────────────── */
+
+/* The four figures own a 12-column track of their own, so their placement can
+   be named by position without touching the hero's other grid children.
+
+   On phones the split is 5/7, not 6/6: the right-hand column starts a column
+   earlier and is correspondingly wider, which keeps "records 2013-10 →
+   2026-09" on one line. From sm up they go four-across. */
+.v-swiss__stats {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+  row-gap: clamp(16px, 2.6vw, 32px);
+}
+
+.v-swiss__stats > .v-swiss__stat:nth-child(odd) {
+  grid-column: 1 / 6;
+}
+
+.v-swiss__stats > .v-swiss__stat:nth-child(even) {
+  grid-column: 6 / 13;
+}
+
+@media (min-width: 640px) {
+  /* Same specificity as the two rules above, so source order decides. */
+  .v-swiss__stats > .v-swiss__stat:nth-child(odd),
+  .v-swiss__stats > .v-swiss__stat:nth-child(even) {
+    grid-column: span 3;
+  }
+}
+
+@media (min-width: 640px) {
+  .v-swiss__grid > .v-swiss__herometa {
+    grid-column: 1 / 7;
+  }
+  .v-swiss__grid > .v-swiss__herogrowth {
+    grid-column: 7 / 13;
+  }
+
+  .v-swiss__grid > .mau-chart-shell {
+    grid-column: 1 / 13;
+  }
+
+  .v-swiss__grid > .v-swiss__prose {
+    grid-column: 1 / 8;
+  }
+  .v-swiss__grid > .v-swiss__faq {
+    grid-column: 8 / 13;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v-swiss,
+  .v-swiss * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

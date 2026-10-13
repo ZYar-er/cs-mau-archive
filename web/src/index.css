@@ -1,19 +1,27 @@
 @import 'tailwindcss';
 
 @theme {
+  /* Steam classic dark / Library palette.
+     #171a21 main background · #232730 card · #292e37 hover & active
+     #adadad secondary text & strokes · #66c0f4 signature blue.
+
+     The blue tints (bright/mid/deep), the primary text tone and the green are
+     not on the card. They're kept from the previous palette so the hero's
+     gradient, the chart's accents and the growth badges stay in the same
+     family; see STEAM_THEME in components/MAUChart.tsx for the chart's side. */
   --color-steam-nav: #171a21;
-  --color-steam-bg: #1b2838;
-  --color-steam-card: #16202d;
-  --color-steam-elevated: #1b3040;
-  --color-steam-border: #2a3f5a;
+  --color-steam-bg: #171a21;
+  --color-steam-card: #232730;
+  --color-steam-elevated: #292e37;
+  --color-steam-border: #adadad;
   --color-steam-blue: #66c0f4;
   --color-steam-blue-bright: #a4d4f0;
   --color-steam-blue-mid: #3f9fe0;
   --color-steam-blue-deep: #2f7cb5;
   --color-steam-green: #a4d007;
   --color-steam-text: #c6d4df;
-  --color-steam-muted: #8f98a0;
-  --color-steam-control: #316282;
+  --color-steam-muted: #adadad;
+  --color-steam-control: #292e37;
   --shadow-steam: 0 1px 3px rgb(0 0 0 / 0.3);
   --shadow-steam-lg: 0 4px 12px rgb(0 0 0 / 0.4);
   --font-sans: 'Motiva Sans', Arial, Helvetica, sans-serif;
