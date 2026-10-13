@@ -9,9 +9,11 @@ web/              React + Vite 前端，用于可视化 MAU 数据
 web/src/          TypeScript 源码
 web/src/components/  React 组件（Header、HeroSection（含 QuickStats 卡片区）、ChartSection、MAUChart、InfoSection、Footer）
 web/src/data/     可导入的数据模块，由仓库级 data/ 同步而来
+web/src/lab/      风格实验沙盒源码（variants/ 下每张风格卡一个变体）
+web/lab/          风格实验入口 HTML（dev-only，不参与构建）
 web/scripts/      构建辅助脚本（copy-data.mjs、gen-seo.mjs、render-ssr.mjs）
 archive/          Wayback Machine 的历史原始 HTML 快照
-docs/             设计规格与实现计划
+docs/             设计文档（site.md：主站约定；lab.md：风格实验的约束清单）
 ```
 
 ## 构建、测试与开发命令
@@ -21,6 +23,7 @@ docs/             设计规格与实现计划
 | 命令                  | 用途                                          |
 |----------------------|----------------------------------------------|
 | `npm run dev`        | 启动 Vite 开发服务器（会先同步数据、生成 SEO 元数据） |
+| `npm run lab`        | 打开风格实验沙盒 `/lab/`（同样会先同步数据）    |
 | `npm run build`      | `tsc` 类型检查 → Vite 生产构建 → SSR 预渲染进 `dist/index.html` |
 | `npm run preview`    | 本地预览生产构建                              |
 
@@ -40,6 +43,20 @@ python scripts/parse_archives.py   # 解析历史 HTML 为 JSON
 - **响应式：** 断点沿用 Tailwind 默认（mobile / sm 640 / lg 1024）。MAUChart 以容器宽度 640px 切换紧凑模式（调整 grid 边距、轴字号并隐藏事件标线文字）。统计数值统一使用 `tabular-nums`，卡片用 flex 垂直居中保持等高。
 - **统计口径：** 按版本聚合统一使用 `lib/data.ts` 中的 `getVersion*` 函数（如 `getVersionAvgMAU`、`getVersionMinMAU`、`getVersionPeakRecord`），不要在组件里自行过滤。历史确定值（如 CS:GO 峰值月份 `2023-04`、CS2 起始月份 `2023-09`）允许以常量硬编码，但须与数据核对一致，并在定义处注明含义，不得用于动态统计数值。
 - **格式化：** 尚未配置格式化工具。保持现有缩进风格一致（TSX/JSON 为 2 空格，Python 为 4 空格）。
+- **主站约定：** 配色、显示名与界面习惯的规则集中在 `docs/site.md`，改外壳、文案或色板前先读。其中「配色有两个写入点」和「改显示不改标识符」最容易踩。
+
+## 风格实验（Style Lab）
+
+`web/src/lab/` 是风格变体的 dev-only 沙盒：同一份真实数据套不同视觉语言，主站一行不动。`web/lab/index.html` 故意不在 `vite.config.ts` 的 `rollupOptions.input` 中，`vite build` 看不到它，`dist/` 不受影响。风格卡（人写的审美描述）决定"长什么样"，约束清单决定"不许破什么"，后者不因风格而豁免。
+
+**改动 `web/src/lab/**` 或新增风格变体前，先读 `docs/lab.md` 的硬性约束清单**。最容易踩的几条：
+
+- 统计数值一律走 `lib/data.ts` 的导出函数，格式化走 `lib/format.ts`；变体里不重算口径、不就地 `toFixed` / `toLocaleString`
+- 用户可见文案一律走 `useI18n().t()`，新增 key 同时补 `en` / `zh`（`TKey` 会强制）
+- 每个变体都要过：双语、375px 无横向滚动、`prefers-reduced-motion`、键盘可达、`<h1>` 唯一
+- 顶栏、页尾、图表一律复用线上组件（`Header` / `Footer` / `MAUChart`），不自己重写；换肤只走 `theme` prop 与 CSS 钩子类名（`site-header-*` / `site-footer-*` / `mau-chart-*`），**布局与结构保持原版**；ECharts 保持懒加载；不引入新的运行时依赖
+- 样式作用域限定在变体根节点，禁止裸 `body` / `:root` / 标签选择器（与浮动切换条共用文档）
+- 变体只放在 `web/src/lab/variants/`。`src/components/**` 允许加法式改动（新增可选主题 / 类名钩子，默认值复刻现状），不改 `src/App.tsx`、`src/lib/**` 及构建脚本
 
 ## 测试指南
 
