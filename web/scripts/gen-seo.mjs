@@ -87,17 +87,17 @@ const range =
   latest && records[0]
     ? `${records[0].date.slice(0, 7)}/${latest.date.slice(0, 7)}`
     : ''
-// The same span spelled for prose ("2013-10 → 2026-09"); `range` keeps the
-// slash form temporalCoverage requires.
-const rangeLabel = range.replace('/', ' → ')
+// The same span spelled for prose ("2013-10 to 2026-09"); `range` keeps the
+// slash form temporalCoverage requires, and llms.txt stays ASCII.
+const rangeLabel = range.replace('/', ' to ')
 const modifiedAt =
   latest?.api_timestamp ?? latest?.wayback_timestamp ?? latest?.date ?? null
 
-// "2013-10 → 2026-06" for one source file's own records, oldest first.
+// "2013-10 to 2026-06" for one source file's own records, oldest first.
 const spanOf = (list) => {
-  if (list.length === 0) return '—'
+  if (list.length === 0) return 'n/a'
   const dates = list.map((record) => record.date).sort()
-  return `${dates[0].slice(0, 7)} → ${dates[dates.length - 1].slice(0, 7)}`
+  return `${dates[0].slice(0, 7)} to ${dates[dates.length - 1].slice(0, 7)}`
 }
 
 if (!latest || !peak || !csgoPeak) {
@@ -339,11 +339,16 @@ writeIfChanged(
 // deliberately short — the convention is an index to the data, not a second
 // copy of the page, and everything longer is one fetch away. English only: the
 // format has no language negotiation, and the Chinese document is linked.
+//
+// ASCII only. .txt is served as bare `text/plain` with no charset, so a browser
+// decodes it as windows-1252 and every arrow, em dash and CJK glyph in here
+// turns into mojibake. Agents read the bytes correctly either way; a human
+// opening the URL does not. Keep new text in this template ASCII.
 writeIfChanged(
   resolve(publicDir, 'llms.txt'),
   `# CS MAU Tracker
 
-> Monthly active players (MAU) for Counter-Strike (CS:GO → CS2), from Valve's
+> Monthly active players (MAU) for Counter-Strike (CS:GO to CS2), from Valve's
 > official Steam Web API and from Wayback Machine snapshots of counter-strike.net.
 
 - Latest, ${enMonthYear(latest.date)}: ${fmt(latest.mau)} (${gameLabel(latest.game_version)})
@@ -358,14 +363,16 @@ played Counter-Strike during that month; this is the number shown on the
 Counter-Strike Website and we're logging that here. It is not a
 concurrent-player figure. Updated on the 1st of each month.
 
-- [all.json](${SITE}/data/all.json) — both sources merged, de-duplicated by month; use this one
-- [history.json](${SITE}/data/history.json) — ${historyRecords.length} Wayback snapshots, ${spanOf(historyRecords)}
-- [daily.json](${SITE}/data/daily.json) — ${dailyRecords.length} live Steam API records, ${spanOf(dailyRecords)}
-- [current.json](${SITE}/data/current.json) — latest record only
+- [all.json](${SITE}/data/all.json) - both sources merged, de-duplicated by month; use this one
+- [history.json](${SITE}/data/history.json) - ${historyRecords.length} Wayback snapshots, ${spanOf(historyRecords)}
+- [daily.json](${SITE}/data/daily.json) - ${dailyRecords.length} live Steam API records, ${spanOf(dailyRecords)}
+- [current.json](${SITE}/data/current.json) - latest record only
 
 ## Optional
 
-- [Site](${SITE}/) · [中文](${SITE_ZH}) · [Source](${REPO}) — MIT licensed, data free to reuse
+- [Site](${SITE}/) - the chart, methodology and FAQ, in English
+- [Chinese](${SITE_ZH}) - the same data and prose, in Chinese
+- [Source](${REPO}) - the fetch and parse scripts and the front end; MIT licensed, data free to reuse
 `,
 )
 

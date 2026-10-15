@@ -1,11 +1,11 @@
 # CS MAU Tracker
 
-> Monthly active players (MAU) for Counter-Strike (CS:GO → CS2), from Valve's
+> Monthly active players (MAU) for Counter-Strike (CS:GO to CS2), from Valve's
 > official Steam Web API and from Wayback Machine snapshots of counter-strike.net.
 
 - Latest, Sep 2026: 29,399,919 (CS2)
 - All-time peak: 32,656,431 (Mar 2026); CS:GO peak: 29,303,030 (Apr 2023)
-- Coverage: 156 consecutive months, 2013-10 → 2026-09, none missing
+- Coverage: 156 consecutive months, 2013-10 to 2026-09, none missing
 
 ## Data
 
@@ -15,11 +15,13 @@ played Counter-Strike during that month; this is the number shown on the
 Counter-Strike Website and we're logging that here. It is not a
 concurrent-player figure. Updated on the 1st of each month.
 
-- [all.json](https://csmau.zyar.top/data/all.json) — both sources merged, de-duplicated by month; use this one
-- [history.json](https://csmau.zyar.top/data/history.json) — 153 Wayback snapshots, 2013-10 → 2026-06
-- [daily.json](https://csmau.zyar.top/data/daily.json) — 4 live Steam API records, 2026-06 → 2026-09
-- [current.json](https://csmau.zyar.top/data/current.json) — latest record only
+- [all.json](https://csmau.zyar.top/data/all.json) - both sources merged, de-duplicated by month; use this one
+- [history.json](https://csmau.zyar.top/data/history.json) - 153 Wayback snapshots, 2013-10 to 2026-06
+- [daily.json](https://csmau.zyar.top/data/daily.json) - 4 live Steam API records, 2026-06 to 2026-09
+- [current.json](https://csmau.zyar.top/data/current.json) - latest record only
 
 ## Optional
 
-- [Site](https://csmau.zyar.top/) · [中文](https://csmau.zyar.top/zh/) · [Source](https://github.com/ZYar-er/cs-mau-archive) — MIT licensed, data free to reuse
+- [Site](https://csmau.zyar.top/) - the chart, methodology and FAQ, in English
+- [Chinese](https://csmau.zyar.top/zh/) - the same data and prose, in Chinese
+- [Source](https://github.com/ZYar-er/cs-mau-archive) - the fetch and parse scripts and the front end; MIT licensed, data free to reuse
