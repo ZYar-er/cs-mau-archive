@@ -164,7 +164,7 @@ function Stat({
   )
 }
 
-function SwissPage({ onLanguageToggle }: StyleCardProps) {
+function SwissPage({ onLanguageToggle, styleSwitch }: StyleCardProps) {
   const { t } = useI18n()
   const records = getAll()
   const latest = getLatest()
@@ -248,7 +248,7 @@ function SwissPage({ onLanguageToggle }: StyleCardProps) {
       {/* Shipping chrome. Header, Footer and MAUChart are all re-skinned from
           CSS rather than reimplemented — same markup, same layout, same
           links; only the skin changes. */}
-      <Header onLanguageToggle={onLanguageToggle} />
+      <Header onLanguageToggle={onLanguageToggle} styleSwitch={styleSwitch} />
 
       <main>
         <section className="v-swiss__section v-swiss__section--lead">

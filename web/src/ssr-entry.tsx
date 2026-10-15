@@ -3,13 +3,9 @@
 // client bundle (nothing imports it from the app graph).
 import { renderToString } from 'react-dom/server'
 import type { Lang } from './lib/i18n'
-import { I18nProvider } from './lib/i18n'
-import App from './App'
+import SiteRoot from './SiteRoot'
+import { DEFAULT_SLUG } from './styles/registry'
 
 export function renderApp(lang: Lang = 'en'): string {
-  return renderToString(
-    <I18nProvider initialLang={lang}>
-      <App />
-    </I18nProvider>,
-  )
+  return renderToString(<SiteRoot lang={lang} initialStyle={DEFAULT_SLUG} />)
 }

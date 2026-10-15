@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import Header from './components/Header'
+import Header, { type HeaderProps } from './components/Header'
 import Footer from './components/Footer'
 import HeroSection from './components/HeroSection'
 import InfoSection from './components/InfoSection'
@@ -21,7 +21,16 @@ function ChartFallback() {
   )
 }
 
-export default function App() {
+/**
+ * The shipping page, and the body of the `baseline` style card
+ * (styles/variants/baseline.tsx re-exports it unchanged, so the two cannot
+ * drift). Its props are the header's, forwarded straight through — this page
+ * has no chrome of its own to drive.
+ */
+export default function App({
+  onLanguageToggle,
+  styleSwitch,
+}: HeaderProps = {}) {
   const { t } = useI18n()
   const latest = getLatest()
   const records = getAll()
@@ -29,7 +38,7 @@ export default function App() {
   if (!latest || records.length === 0) {
     return (
       <div className="flex min-h-screen flex-col bg-steam-bg">
-        <Header />
+        <Header onLanguageToggle={onLanguageToggle} styleSwitch={styleSwitch} />
         <main className="flex flex-1 items-center justify-center">
           <div className="text-center text-steam-muted">
             <p className="text-lg sm:text-xl">{t('noData')}</p>
@@ -53,7 +62,7 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen flex-col bg-steam-bg">
-      <Header />
+      <Header onLanguageToggle={onLanguageToggle} styleSwitch={styleSwitch} />
       <main className="flex-1 pb-4">
         <HeroSection
           latest={latest}

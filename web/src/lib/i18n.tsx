@@ -41,6 +41,7 @@ const en = {
   eventCs2: 'CS2',
   switchToZh: 'Switch to Chinese',
   switchToEn: 'Switch to English',
+  switchStyleAria: 'Switch style: {style}',
   noData: 'No data available',
   syncHint: 'Run {cmd} to sync data files.',
   notEnough: 'Not enough data yet',
@@ -113,6 +114,7 @@ const zh: Record<TKey, string> = {
   eventCs2: 'CS2',
   switchToZh: '切换为中文',
   switchToEn: '切换为英文',
+  switchStyleAria: '切换风格：{style}',
   noData: '暂无数据',
   syncHint: '运行 {cmd} 同步数据文件。',
   notEnough: '数据不足',
@@ -157,8 +159,9 @@ interface I18nContextValue {
   lang: Lang
   /**
    * Switch language in place, without a navigation. Whoever calls this owns
-   * the URL: the shipping Header rewrites the localized path with
-   * `replaceState`, the lab rewrites its own `?lang=` query.
+   * the URL: on the shipping pages the localized path is rewritten with
+   * `replaceState`, in the lab its own `?lang=` query is. Both go through
+   * `styles/useStyleSelection.ts`, which also carries the current style over.
    */
   setLang: (next: Lang) => void
   t: Translator

@@ -9,11 +9,12 @@ web/              React + Vite 前端，用于可视化 MAU 数据
 web/src/          TypeScript 源码
 web/src/components/  React 组件（Header、HeroSection（含 QuickStats 卡片区）、ChartSection、MAUChart、InfoSection、Footer）
 web/src/data/     可导入的数据模块，由仓库级 data/ 同步而来
-web/src/lab/      风格实验沙盒源码（variants/ 下每张风格卡一个变体）
+web/src/styles/   风格卡与注册表（正式版与沙盒共用，会打包进 dist）
+web/src/lab/      风格沙盒的 dev-only 外壳（不进 dist）
 web/lab/          风格实验入口 HTML（dev-only，不参与构建）
 web/scripts/      构建辅助脚本（copy-data.mjs、gen-seo.mjs、render-ssr.mjs）
 archive/          Wayback Machine 的历史原始 HTML 快照
-docs/             设计文档（site.md：主站约定；lab.md：风格实验的约束清单）
+docs/             设计文档（site.md：主站约定；lab.md：风格与沙盒的约束清单）
 ```
 
 ## 构建、测试与开发命令
@@ -45,18 +46,21 @@ python scripts/parse_archives.py   # 解析历史 HTML 为 JSON
 - **格式化：** 尚未配置格式化工具。保持现有缩进风格一致（TSX/JSON 为 2 空格，Python 为 4 空格）。
 - **主站约定：** 配色、显示名与界面习惯的规则集中在 `docs/site.md`，改外壳、文案或色板前先读。其中「配色有两个写入点」和「改显示不改标识符」最容易踩。
 
-## 风格实验（Style Lab）
+## 风格（Style）
 
-`web/src/lab/` 是风格变体的 dev-only 沙盒：同一份真实数据套不同视觉语言，主站一行不动。`web/lab/index.html` 故意不在 `vite.config.ts` 的 `rollupOptions.input` 中，`vite build` 看不到它，`dist/` 不受影响。风格卡（人写的审美描述）决定"长什么样"，约束清单决定"不许破什么"，后者不因风格而豁免。
+风格是**正式版的一部分**：`/` 与 `/zh/` 的顶栏有风格控件，点击原地切到下一张卡，状态写在 `?v=`（`/?v=swiss`）。默认卡 `baseline` 就是线上原貌，也是唯一被预渲染的一份。`web/src/styles/` 存放风格卡与注册表（由 `src/SiteRoot.tsx` 引入，会打包进 `dist/`）；`web/src/lab/` 只是围绕它们的 dev 沙盒外壳，`web/lab/index.html` 故意不在 `vite.config.ts` 的 `rollupOptions.input` 中，`vite build` 看不到它，沙盒与浮动切换条都不会进 `dist/`。
 
-**改动 `web/src/lab/**` 或新增风格变体前，先读 `docs/lab.md` 的硬性约束清单**。最容易踩的几条：
+风格卡（人写的审美描述）决定"长什么样"，约束清单决定"不许破什么"，后者不因风格而豁免。
+
+**改动 `web/src/styles/**`、`web/src/lab/**` 或新增风格卡前，先读 `docs/lab.md` 的硬性约束清单**。最容易踩的几条：
 
 - 统计数值一律走 `lib/data.ts` 的导出函数，格式化走 `lib/format.ts`；变体里不重算口径、不就地 `toFixed` / `toLocaleString`
 - 用户可见文案一律走 `useI18n().t()`，新增 key 同时补 `en` / `zh`（`TKey` 会强制）
 - 每个变体都要过：双语、375px 无横向滚动、`prefers-reduced-motion`、键盘可达、`<h1>` 唯一
 - 顶栏、页尾、图表一律复用线上组件（`Header` / `Footer` / `MAUChart`），不自己重写；换肤只走 `theme` prop 与 CSS 钩子类名（`site-header-*` / `site-footer-*` / `mau-chart-*`），**布局与结构保持原版**；ECharts 保持懒加载；不引入新的运行时依赖
-- 样式作用域限定在变体根节点，禁止裸 `body` / `:root` / 标签选择器（与浮动切换条共用文档）
-- 变体只放在 `web/src/lab/variants/`。`src/components/**` 允许加法式改动（新增可选主题 / 类名钩子，默认值复刻现状），不改 `src/App.tsx`、`src/lib/**` 及构建脚本
+- 卡片要把 `StyleCardProps` 里的两个顶栏控件（`styleSwitch` / `onLanguageToggle`）都转给 `Header`，漏传会少一个控件，或让页面与 URL 脱节
+- 样式作用域限定在卡片根节点，禁止裸 `body` / `:root` / 标签选择器（沙盒里与浮动切换条共用文档）
+- 卡片只放在 `web/src/styles/variants/`。`src/components/**` 允许加法式改动（新增可选主题 / 类名钩子，默认值复刻现状），不改 `src/SiteRoot.tsx`、`src/main.tsx`、`src/lib/**` 及构建脚本
 
 ## 测试指南
 

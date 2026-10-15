@@ -1,8 +1,8 @@
 import { StrictMode } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import './index.css'
-import App from './App'
-import { I18nProvider } from './lib/i18n'
+import SiteRoot from './SiteRoot'
+import { DEFAULT_SLUG, findCard } from './styles/registry'
 
 // Migrate the former query-based language switch to canonical localized paths.
 if (typeof window !== 'undefined') {
@@ -16,19 +16,25 @@ if (typeof window !== 'undefined') {
 }
 
 const container = document.getElementById('app')!
+// Resolved here rather than in the app so the first render already knows which
+// card it is; see the hydration branch below.
+const requestedStyle = findCard(
+  new URLSearchParams(window.location.search).get('v'),
+).slug
+
 const tree = (
   <StrictMode>
-    <I18nProvider>
-      <App />
-    </I18nProvider>
+    <SiteRoot initialStyle={requestedStyle} />
   </StrictMode>
 )
 
-if (container.childElementCount > 0) {
-  // dist/index.html was prerendered at build time (scripts/render-ssr.mjs) —
-  // hydrate it. In plain `vite dev` there is no prerendered markup, so we
-  // render client-side instead.
+// Only the shipping style was prerendered (scripts/render-ssr.mjs), so it is
+// the only one with markup to hydrate. A link to another style — or plain
+// `vite dev`, which has no prerender at all — takes the container over
+// instead, rather than painting the shipping style and swapping a frame later.
+if (container.childElementCount > 0 && requestedStyle === DEFAULT_SLUG) {
   hydrateRoot(container, tree)
 } else {
+  container.replaceChildren()
   createRoot(container).render(tree)
 }

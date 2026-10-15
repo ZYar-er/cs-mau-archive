@@ -1,17 +1,44 @@
 import type { MouseEvent as ReactMouseEvent } from 'react'
 import { useI18n } from '../lib/i18n'
 
-interface Props {
+/**
+ * The next style card, as the header's style control needs it. The host builds
+ * it (see `styles/useStyleSelection.ts`) because only the host knows how its
+ * own URL is shaped.
+ */
+export interface StyleSwitch {
   /**
-   * Takes over the language switch. The shipping pages omit it and the Header
-   * switches in place itself, rewriting the localized path; the style lab
-   * passes its own handler so the switch rewrites the lab's query string
-   * instead of navigating out of the preview.
+   * Shown on the control. This is the style you get, not the one you are on —
+   * the language control beside it names its target the same way, so the two
+   * chips read alike.
    */
-  onLanguageToggle?: () => void
+  title: string
+  /** Where the control leads without JavaScript, and where ⌘-click opens. */
+  href: string
+  onSelect: () => void
 }
 
-export default function Header({ onLanguageToggle }: Props) {
+/**
+ * Everything the Header can be told to do. Both fields are optional: a caller
+ * that passes neither gets the header's own behaviour — the language control
+ * switches in place, and no style control is rendered. The site and the lab
+ * both pass the pair; see `styles/useStyleSelection.ts`.
+ */
+export interface HeaderProps {
+  /**
+   * Takes over the language switch. Callers that own a style selection pass
+   * their own handler so the switch carries the current style along instead of
+   * dropping it; on its own the Header rewrites the localized path.
+   */
+  onLanguageToggle?: () => void
+  /**
+   * Adds the style control between the language and GitHub chips. Omitted by
+   * any caller with no style system, which leaves the control out entirely.
+   */
+  styleSwitch?: StyleSwitch
+}
+
+export default function Header({ onLanguageToggle, styleSwitch }: HeaderProps) {
   const { t, lang, setLang } = useI18n()
   const nextLang = lang === 'en' ? 'zh' : 'en'
   const languageHref = nextLang === 'zh' ? '/zh/' : '/'
@@ -22,6 +49,17 @@ export default function Header({ onLanguageToggle }: Props) {
   // on every switch and shoves the GitHub link sideways.
   const languageClass =
     'site-header-action site-header-lang rounded-sm bg-steam-card px-2 py-2 text-center uppercase tracking-wider transition-colors hover:bg-steam-control/50 hover:text-steam-text min-w-12 sm:min-w-13'
+  // The label drops below sm and only the glyph remains — the same trade the
+  // GitHub chip beside it makes, for the same reason: three labelled chips
+  // plus the site title do not fit at 375px, and the site title is the one
+  // that would wrap to make room. Unlike the language chip there is no
+  // min-width: the label is a card title, so its length is the registry's
+  // business, and the chips to its right do shift when the style changes.
+  // That is a deliberate click rather than a control flipped back and forth,
+  // which is why the language chip can afford to pin its width and this one
+  // cannot. Card titles keep their own casing — "Swiss" is the card's name.
+  const styleClass =
+    'site-header-action site-header-style flex items-center gap-1.5 rounded-sm bg-steam-card px-2 py-2 transition-colors hover:bg-steam-control/50 hover:text-steam-text'
 
   /**
    * Deliberately still an <a>. Without JavaScript it navigates to the other
@@ -38,6 +76,18 @@ export default function Header({ onLanguageToggle }: Props) {
     }
     setLang(nextLang)
     window.history.replaceState(null, '', languageHref)
+  }
+
+  /**
+   * Same shape as the language control, and for the same reason: the href is
+   * real, so ⌘-click or a middle click opens the other style in a new tab.
+   * Without JavaScript that navigation lands on the same prerendered document
+   * — only the default style is prerendered — which is the accepted cost of
+   * shipping one document rather than one per style.
+   */
+  function handleStyleClick(event: ReactMouseEvent<HTMLAnchorElement>) {
+    event.preventDefault()
+    styleSwitch?.onSelect()
   }
 
   return (
@@ -64,6 +114,35 @@ export default function Header({ onLanguageToggle }: Props) {
           >
             {languageLabel}
           </a>
+          {styleSwitch && (
+            <a
+              href={styleSwitch.href}
+              onClick={handleStyleClick}
+              aria-label={t('switchStyleAria').replace(
+                '{style}',
+                styleSwitch.title,
+              )}
+              className={styleClass}
+            >
+              {/* Four tiles: the styles themselves, rather than the act of
+                  cycling — a refresh arrow in a data page's header reads as
+                  "reload the numbers". */}
+              <svg
+                viewBox="0 0 16 16"
+                className="h-4 w-4"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <rect x="1" y="1" width="5.5" height="5.5" />
+                <rect x="9.5" y="1" width="5.5" height="5.5" />
+                <rect x="1" y="9.5" width="5.5" height="5.5" />
+                <rect x="9.5" y="9.5" width="5.5" height="5.5" />
+              </svg>
+              <span className="site-header-action-label hidden sm:inline">
+                {styleSwitch.title}
+              </span>
+            </a>
+          )}
           <a
             href="https://github.com/ZYar-er/cs-mau-archive"
             target="_blank"
