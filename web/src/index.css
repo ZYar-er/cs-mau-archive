@@ -35,6 +35,20 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Hero figure (components/HeroSection.tsx). Its gradient is painted *through*
+   the glyphs, so the digits themselves stay transparent — and that only holds
+   if the engine actually clips the background. Tailwind's bg-clip-text emits
+   `-webkit-background-clip: text` first and the standard property second, and
+   a Blink that honours only the prefixed form ends up with background-clip
+   back at its initial `border-box`: a solid bar with invisible digits. Kiwi
+   Browser on Android renders exactly that; Chrome and Firefox clip correctly.
+   Re-asserting the prefixed pair here settles the order. Unlayered, so it
+   beats Tailwind's @layer utilities — same trick the style variants' CSS uses. */
+.hero-mau {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
 }

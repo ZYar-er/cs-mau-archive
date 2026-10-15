@@ -70,7 +70,9 @@ export default function HeroSection({
               {fmtGameVersion(latest.game_version)}
             </span>
           </h1>
-            <p className="bg-gradient-to-r from-steam-blue-bright via-steam-blue to-steam-blue-mid bg-clip-text text-3xl font-bold tracking-tight tabular-nums whitespace-nowrap text-transparent min-[360px]:text-4xl sm:text-5xl lg:text-6xl">
+            {/* `hero-mau` carries the prefixed half of the clip — see the rule
+                in index.css for why the utilities alone are not enough. */}
+            <p className="hero-mau bg-gradient-to-r from-steam-blue-bright via-steam-blue to-steam-blue-mid bg-clip-text text-3xl font-bold tracking-tight tabular-nums whitespace-nowrap text-transparent min-[360px]:text-4xl sm:text-5xl lg:text-6xl">
               <AnimatedNumber value={latest.mau} from={prev?.mau} />
             </p>
             <div className="mt-3 h-px bg-gradient-to-r from-steam-blue-bright/60 via-steam-blue/25 to-transparent" />

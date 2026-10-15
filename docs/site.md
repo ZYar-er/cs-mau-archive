@@ -9,6 +9,7 @@
 - `blue-bright` / `blue-mid` / `blue-deep` / `green` / `text` **不在色板上**，是上一版保留的 Steam 强调色（hero 数字渐变、涨跌徽章要用）
 - `--color-steam-border` 与 `--color-steam-muted` 现在同值（都是 `#adadad`）。站内 border 用法几乎都带 `/50`；只有 `lab/LabApp.tsx` 里两处是全不透明
 - 图表里 `#2a3f5a` 系列的线已换成 `rgba(173, 173, 173, …)`（透明度 0.12–0.25）以配合新底色；**数据色不随色板变** —— 6 个月均值的黄、四个事件色、CS:GO 橙、历史峰值红都是语义色
+- **hero 大数字的渐变还有第三个写入点：`index.css` 里的 `.hero-mau`。** 那行数字靠 `bg-clip-text` + `text-transparent` 把渐变"画进字形里"，Tailwind 生成的顺序是 `-webkit-background-clip` 在前、标准属性在后；只认前缀的 Blink 会把 `background-clip` 落回初始值 `border-box`，于是整行变成一个色块、数字看不见（Kiwi Browser on Android 就是这样，Chrome / Firefox 正常）。`.hero-mau` 补上前缀对，未分层所以压得住 `@layer utilities`。改这行数字的配色时别把它删了
 - `<meta name="theme-color">` 在两个 `web/*/index.html` 里是**手写**的，不归 `gen-seo.mjs` 管，换底色要一起改
 
 ## 显示名与数据键
