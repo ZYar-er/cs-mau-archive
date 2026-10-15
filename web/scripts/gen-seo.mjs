@@ -33,6 +33,10 @@ const fmtWan = (n) => {
     })}万`
   return String(n)
 }
+// Display labels for the `game_version` keys, matching web/src/lib/format.ts.
+const GAME_LABELS = { csgo: 'CS:GO', cs2: 'CS2' }
+const gameLabel = (version) => GAME_LABELS[version] ?? version.toUpperCase()
+
 const enMonthYear = (date) =>
   new Date(`${date}T00:00:00Z`).toLocaleDateString('en-US', {
     month: 'short',
@@ -59,11 +63,11 @@ const load = (path, fallback) => {
     return fallback
   }
 }
+const historyRecords = load(resolve(dataDir, 'history.json'), [])
+const dailyRecords = load(resolve(dataDir, 'daily.json'), [])
+
 const byDate = new Map()
-for (const record of [
-  ...load(resolve(dataDir, 'history.json'), []),
-  ...load(resolve(dataDir, 'daily.json'), []),
-]) {
+for (const record of [...historyRecords, ...dailyRecords]) {
   byDate.set(record.date, record)
 }
 const records = [...byDate.values()].sort((a, b) =>
@@ -83,8 +87,18 @@ const range =
   latest && records[0]
     ? `${records[0].date.slice(0, 7)}/${latest.date.slice(0, 7)}`
     : ''
+// The same span spelled for prose ("2013-10 → 2026-09"); `range` keeps the
+// slash form temporalCoverage requires.
+const rangeLabel = range.replace('/', ' → ')
 const modifiedAt =
   latest?.api_timestamp ?? latest?.wayback_timestamp ?? latest?.date ?? null
+
+// "2013-10 → 2026-06" for one source file's own records, oldest first.
+const spanOf = (list) => {
+  if (list.length === 0) return '—'
+  const dates = list.map((record) => record.date).sort()
+  return `${dates[0].slice(0, 7)} → ${dates[dates.length - 1].slice(0, 7)}`
+}
 
 if (!latest || !peak || !csgoPeak) {
   throw new Error('[gen-seo] data/history.json contains no usable MAU records')
@@ -188,6 +202,11 @@ function createMetadata(lang) {
           {
             '@type': 'DataDownload',
             contentUrl: `${SITE}/data/daily.json`,
+            encodingFormat: 'application/json',
+          },
+          {
+            '@type': 'DataDownload',
+            contentUrl: `${SITE}/data/current.json`,
             encodingFormat: 'application/json',
           },
         ],
@@ -316,11 +335,51 @@ writeIfChanged(
 `,
 )
 
+// llms.txt: the briefing an agent reads instead of the class-heavy HTML. Kept
+// deliberately short — the convention is an index to the data, not a second
+// copy of the page, and everything longer is one fetch away. English only: the
+// format has no language negotiation, and the Chinese document is linked.
+writeIfChanged(
+  resolve(publicDir, 'llms.txt'),
+  `# CS MAU Tracker
+
+> Monthly active players (MAU) for Counter-Strike (CS:GO → CS2), from Valve's
+> official Steam Web API and from Wayback Machine snapshots of counter-strike.net.
+
+- Latest, ${enMonthYear(latest.date)}: ${fmt(latest.mau)} (${gameLabel(latest.game_version)})
+- All-time peak: ${fmt(peak.mau)} (${enMonthYear(peak.date)}); CS:GO peak: ${fmt(csgoPeak.mau)} (${enMonthYear(csgoPeak.date)})
+- Coverage: ${records.length} consecutive months, ${rangeLabel}, none missing
+
+## Data
+
+JSON arrays of \`{date, mau, game_version, source}\`: \`date\` is the month
+covered, always its 1st. \`mau\` is the number of unique Steam accounts that
+played Counter-Strike during that month; this is the number shown on the
+Counter-Strike Website and we're logging that here. It is not a
+concurrent-player figure. Updated on the 1st of each month.
+
+- [all.json](${SITE}/data/all.json) — both sources merged, de-duplicated by month; use this one
+- [history.json](${SITE}/data/history.json) — ${historyRecords.length} Wayback snapshots, ${spanOf(historyRecords)}
+- [daily.json](${SITE}/data/daily.json) — ${dailyRecords.length} live Steam API records, ${spanOf(dailyRecords)}
+- [current.json](${SITE}/data/current.json) — latest record only
+
+## Optional
+
+- [Site](${SITE}/) · [中文](${SITE_ZH}) · [Source](${REPO}) — MIT licensed, data free to reuse
+`,
+)
+
 mkdirSync(resolve(publicDir, 'data'), { recursive: true })
+// Publish the committed records verbatim next to the merged bundle. The filter
+// must not reject the source directory itself: `cpSync` runs it on the root as
+// well, and a `false` there skips the entire copy rather than pruning one entry.
 cpSync(dataDir, resolve(publicDir, 'data'), {
   recursive: true,
-  filter: (source) => source !== dataDir && !source.includes('__pycache__'),
+  filter: (source) => !source.includes('__pycache__'),
 })
+console.log(
+  `[gen-seo] published ${historyRecords.length + dailyRecords.length} raw records to /data/`,
+)
 
 const merged = [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date))
 writeIfChanged(

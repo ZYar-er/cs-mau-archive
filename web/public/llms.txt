@@ -1,0 +1,25 @@
+# CS MAU Tracker
+
+> Monthly active players (MAU) for Counter-Strike (CS:GO → CS2), from Valve's
+> official Steam Web API and from Wayback Machine snapshots of counter-strike.net.
+
+- Latest, Sep 2026: 29,399,919 (CS2)
+- All-time peak: 32,656,431 (Mar 2026); CS:GO peak: 29,303,030 (Apr 2023)
+- Coverage: 156 consecutive months, 2013-10 → 2026-09, none missing
+
+## Data
+
+JSON arrays of `{date, mau, game_version, source}`: `date` is the month
+covered, always its 1st. `mau` is the number of unique Steam accounts that
+played Counter-Strike during that month; this is the number shown on the
+Counter-Strike Website and we're logging that here. It is not a
+concurrent-player figure. Updated on the 1st of each month.
+
+- [all.json](https://csmau.zyar.top/data/all.json) — both sources merged, de-duplicated by month; use this one
+- [history.json](https://csmau.zyar.top/data/history.json) — 153 Wayback snapshots, 2013-10 → 2026-06
+- [daily.json](https://csmau.zyar.top/data/daily.json) — 4 live Steam API records, 2026-06 → 2026-09
+- [current.json](https://csmau.zyar.top/data/current.json) — latest record only
+
+## Optional
+
+- [Site](https://csmau.zyar.top/) · [中文](https://csmau.zyar.top/zh/) · [Source](https://github.com/ZYar-er/cs-mau-archive) — MIT licensed, data free to reuse

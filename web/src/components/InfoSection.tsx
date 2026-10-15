@@ -56,6 +56,18 @@ export default function InfoSection({ records }: { records: MAURecord[] }) {
           <p>{t('methodP1')}</p>
           <p>{t('methodP2')}</p>
           <p>{fill(t('methodP3'), { count, range })}</p>
+          {/* The same records the chart draws, as a crawlable link: the chart
+              itself is a canvas inside a lazy chunk, so without this the series
+              never appears in the prerendered HTML. Served from public/data/,
+              written by scripts/gen-seo.mjs. */}
+          <p>
+            <a
+              href="/data/all.json"
+              className="text-steam-blue-bright underline decoration-steam-blue/40 underline-offset-2 transition-colors hover:decoration-steam-blue-bright"
+            >
+              {t('datasetDownload')}
+            </a>
+          </p>
         </div>
 
         <h3 className="mt-5 text-sm font-semibold text-steam-blue-bright">

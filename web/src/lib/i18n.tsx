@@ -56,6 +56,7 @@ const en = {
     'Years before that API existed are recovered from historical snapshots of counter-strike.net preserved in the Wayback Machine, then merged with API records and de-duplicated by month.',
   methodP3:
     'Valve publishes the figure on the 1st of each month at 07:00 UTC; this tracker refreshes automatically via GitHub Actions. The chart above covers {count} monthly records from {range}.',
+  datasetDownload: 'Download the full dataset (JSON)',
   timelineTitle: 'Timeline',
   tCsgoLaunch: 'CS:GO launches',
   tF2p: 'CS:GO becomes free-to-play',
@@ -129,6 +130,7 @@ const zh: Record<TKey, string> = {
     '该 API 出现之前的年份，由 Wayback Machine 保存的 counter-strike.net 历史快照恢复，再与 API 记录合并并按月份去重。',
   methodP3:
     'Valve 于每月 1 日 07:00 UTC 发布数据；本追踪器通过 GitHub Actions 自动更新。上图图表共覆盖 {count} 条月度记录（{range}）。',
+  datasetDownload: '下载完整数据集（JSON）',
   timelineTitle: '时间线',
   tCsgoLaunch: 'CS:GO 发布',
   tF2p: 'CS:GO 转为免费游戏',

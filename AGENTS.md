@@ -77,4 +77,4 @@ python scripts/parse_archives.py   # 解析历史 HTML 为 JSON
 1. `scripts/fetch_monthly.py` 每月通过 GitHub Actions（`cron: "0 9 1 * *"`）调用 Steam API，按月份去重后写入 `data/daily.json`，并同步更新 `data/current.json`。
 2. `archive/` 中的历史 HTML 文件通过 `scripts/parse_archives.py` 解析为 `data/history.json`。
 3. 开发/构建前，`web/scripts/copy-data.mjs` 将 `data/*.json` 复制到 `web/src/data/`，以便前端直接导入。
-4. 构建前 `web/scripts/gen-seo.mjs` 依据数据生成 SEO 元数据（写入 `web/index.html` 的 token）、`web/public/robots.txt`、`web/public/sitemap.xml`，并把数据 JSON 复制到 `web/public/data/` 供爬虫抓取；构建后 `web/scripts/render-ssr.mjs` 将 React 应用预渲染进 `dist/index.html`（客户端再水合）。SEO 相关改动注意：`index.html` 中的 `__SEO_*__` token 由 gen-seo 在构建时替换，勿手改生成结果。
+4. 构建前 `web/scripts/gen-seo.mjs` 依据数据生成 SEO 元数据（写入 `web/index.html` 的 token）、`web/public/robots.txt`、`web/public/sitemap.xml`、`web/public/llms.txt`（给 agent 的简报），并把数据 JSON 复制到 `web/public/data/` 供爬虫抓取（`all.json` 为合并去重结果，其余三个原样发布，四个都在 Dataset 的 `distribution` 里）；构建后 `web/scripts/render-ssr.mjs` 将 React 应用预渲染进 `dist/index.html`（客户端再水合）。SEO 相关改动注意：`index.html` 中的 `__SEO_*__` token 由 gen-seo 在构建时替换，勿手改生成结果。
