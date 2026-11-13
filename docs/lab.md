@@ -1,6 +1,6 @@
 # 风格（Style）
 
-主站固定，风格是变量。同一份真实数据套不同视觉语言；默认那一套（`baseline`）就是线上现状。
+主站固定，风格是变量。同一份真实数据套不同视觉语言；默认那一套（`baseline`）就是线上现状（现代 Steam 商店配色）。
 
 风格是**正式版的一部分**：`/` 与 `/zh/` 的顶栏有一个风格控件，点击原地切到下一张卡，状态写在 `?v=`（`/?v=swiss`）。`web/src/lab/` 只是围绕同一批卡的 dev 沙盒 —— 右下角浮动条能直接按名字跳到任意一张卡，比顶栏的逐张轮转好用，仅此而已。
 
@@ -62,7 +62,7 @@
 ### 工程
 
 - **顶栏、页尾、图表一律复用线上组件，不要自己写。** 三条换肤途径：
-  - `components/MAUChart.tsx` —— canvas 颜色走 `theme` prop（`ChartTheme`，默认 `STEAM_THEME` 即线上配色），DOM 外壳走 CSS 覆盖（`mau-chart-*` 钩子类名）。缩放与吸附、y 轴自适应、tooltip、区间按钮、底部统计都锁在组件里
+  - `components/MAUChart.tsx` —— canvas 颜色走 `theme` prop（`ChartTheme`，默认 `STEAM_THEME` 即线上现代 Steam 商店配色），DOM 外壳走 CSS 覆盖（`mau-chart-*` 钩子类名）。缩放与吸附、y 轴自适应、tooltip、区间按钮、底部统计都锁在组件里。改默认色板时与 `index.css` 同步，见 `docs/site.md` 的两个写入点
   - `components/Header.tsx` / `components/Footer.tsx` —— 纯 DOM，全部走 CSS 覆盖（`site-header-*` / `site-footer-*` 钩子类名）。**布局、间距、结构和链接行为是原版的，不得改动**；变体只改表面：底色、字体、边框、阴影、圆角。仅有的扩展是两个可选 prop：`onLanguageToggle`（同下文）与 `styleSwitch`（顶栏的风格控件，由 `styles/useStyleSelection.ts` 造好）。两个控件都仍是真 `<a>`，无 JS 时照常跳转
   - 变体自己的容器宽度要对齐线上 chrome 的 `mx-auto max-w-7xl px-4 sm:px-6`，否则网格边缘和顶栏页尾对不齐
 - **改 `MAUChart` / `Header` / `Footer` 本体之前先读 `docs/site.md`**：tooltip 布局已定型、配色有两个写入点、语言切换是原地切换、风格状态在 `?v=`。变体的越权边界也在那里

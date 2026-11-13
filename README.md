@@ -27,6 +27,8 @@ npm run build    # production build → web/dist
 npm run preview  # preview the build
 ```
 
+The default `baseline` style uses the modern Steam storefront palette (`#1b2838` canvas, `#141f2c` rails, `#283645` tiles, `#384959` insets, `#06bfff` CTA cyan). The header's style control switches cards in place and records the choice in `?v=`. Palette rules live in [`docs/site.md`](docs/site.md); style-card constraints in [`docs/lab.md`](docs/lab.md).
+
 ## Deployment (Cloudflare Pages)
 
 The site is pure static and deploys to Cloudflare Pages (repo-connected; build command `npm run build`, output directory `web/dist`). `web/wrangler.toml` is an optional Workers static-assets config for `wrangler deploy`, not required for Pages.

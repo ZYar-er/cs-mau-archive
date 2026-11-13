@@ -44,13 +44,13 @@ python scripts/parse_archives.py   # 解析历史 HTML 为 JSON
 - **响应式：** 断点沿用 Tailwind 默认（mobile / sm 640 / lg 1024）。MAUChart 以容器宽度 640px 切换紧凑模式（调整 grid 边距、轴字号并隐藏事件标线文字）。统计数值统一使用 `tabular-nums`，卡片用 flex 垂直居中保持等高。
 - **统计口径：** 按版本聚合统一使用 `lib/data.ts` 中的 `getVersion*` 函数（如 `getVersionAvgMAU`、`getVersionMinMAU`、`getVersionPeakRecord`），不要在组件里自行过滤。历史确定值（如 CS:GO 峰值月份 `2023-04`、CS2 起始月份 `2023-09`）允许以常量硬编码，但须与数据核对一致，并在定义处注明含义，不得用于动态统计数值。
 - **格式化：** 尚未配置格式化工具。保持现有缩进风格一致（TSX/JSON 为 2 空格，Python 为 4 空格）。
-- **主站约定：** 配色、显示名与界面习惯的规则集中在 `docs/site.md`，改外壳、文案或色板前先读。其中「配色有两个写入点」和「改显示不改标识符」最容易踩。
+- **主站约定：** 默认 `baseline` 使用现代 Steam 商店配色（`#1b2838` canvas / `#141f2c` rail / `#283645` tile / `#384959` inset / `#4c6c8c` hairline / `#06bfff` CTA）。配色、显示名与界面习惯的规则集中在 `docs/site.md`，改外壳、文案或色板前先读。其中「配色有两个写入点」和「改显示不改标识符」最容易踩。
 
 ## 风格（Style）
 
 风格是**正式版的一部分**：`/` 与 `/zh/` 的顶栏有风格控件，点击原地切到下一张卡，状态写在 `?v=`（`/?v=swiss`）。默认卡 `baseline` 就是线上原貌，也是唯一被预渲染的一份。`web/src/styles/` 存放风格卡与注册表（由 `src/SiteRoot.tsx` 引入，会打包进 `dist/`）；`web/src/lab/` 只是围绕它们的 dev 沙盒外壳，`web/lab/index.html` 故意不在 `vite.config.ts` 的 `rollupOptions.input` 中，`vite build` 看不到它，沙盒与浮动切换条都不会进 `dist/`。
 
-风格卡（人写的审美描述）决定"长什么样"，约束清单决定"不许破什么"，后者不因风格而豁免。
+风格卡（人写的审美描述）决定"长什么样"，约束清单决定"不许破什么"，后者不因风格而豁免。默认卡 `baseline` 的色板就是 `docs/site.md` 记录的现代 Steam 商店配色；新卡应自带完整色板与 `ChartTheme`，不要依赖默认色值。
 
 **改动 `web/src/styles/**`、`web/src/lab/**` 或新增风格卡前，先读 `docs/lab.md` 的硬性约束清单**。最容易踩的几条：
 
