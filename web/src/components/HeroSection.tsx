@@ -66,7 +66,7 @@ export default function HeroSection({
                 ? `：${fmtNum(latest.mau)} 名玩家（${asOfDate}）`
                 : `: ${fmtNum(latest.mau)} players (${asOfDate})`}
             </span>
-            <span className="rounded-sm bg-steam-control/40 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-steam-blue-bright ring-1 ring-steam-blue/30">
+            <span className="rounded-sm bg-steam-control/40 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-steam-blue ring-1 ring-steam-blue/30">
               {fmtGameVersion(latest.game_version)}
             </span>
           </h1>
@@ -157,7 +157,7 @@ function GrowthBadge({
       className={`inline-flex items-center gap-1 whitespace-nowrap rounded-sm px-1.5 py-0.5 text-xs font-medium tabular-nums ring-1 sm:text-sm ${
         positive
           ? 'bg-steam-green/10 text-steam-green ring-steam-green/40'
-          : 'bg-red-500/10 text-red-400 ring-red-500/40'
+          : 'bg-steam-red/10 text-steam-red ring-steam-red/40'
       }`}
     >
       <svg

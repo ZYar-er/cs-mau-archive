@@ -58,14 +58,14 @@ export default function QuickStats() {
         <Card
           label={t('mom')}
           value={`${momPositive ? '+' : ''}${mom}%`}
-          color={momPositive ? 'text-steam-green' : 'text-red-400'}
+          color={momPositive ? 'text-steam-green' : 'text-steam-red'}
         />
       )}
       {yoy && (
         <Card
           label={t('yoy')}
           value={`${yoyPositive ? '+' : ''}${yoy}%`}
-          color={yoyPositive ? 'text-steam-green' : 'text-red-400'}
+          color={yoyPositive ? 'text-steam-green' : 'text-steam-red'}
         />
       )}
     </div>

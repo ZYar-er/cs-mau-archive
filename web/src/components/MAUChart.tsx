@@ -96,14 +96,13 @@ export interface ChartTheme {
 }
 
 /**
- * The shipping palette: Steam classic dark / Library.
+ * The shipping palette: Steam storefront / modern navy ladder.
  *
- * Chrome follows the colour card (#232730 for the marker, #adadad for labels
- * and strokes, #66c0f4 for the interaction blue). The categorical accents —
- * the 6-month average, the four event tones, the CS:GO and all-time peaks —
- * are data colours, not chrome, so they keep their hues; the lines that were
- * a blue-tinted #2a3f5a become #adadad at low alpha so they read as neutral
- * hairlines on the new background. Kept in step with src/index.css.
+ * Chrome follows the colour card (#283645 tile, #384959 inset, #4c6c8c
+ * hairlines, #c6d4df labels, #66c0f4 link blue, #06bfff interaction cyan).
+ * The categorical accents — the 6-month average, the four event tones, the
+ * CS:GO and all-time peaks — are data colours, not chrome, so they keep their
+ * hues. Kept in step with src/index.css.
  */
 export const STEAM_THEME: ChartTheme = {
   series: {
@@ -124,17 +123,17 @@ export const STEAM_THEME: ChartTheme = {
   },
   average: { color: '#f5c542', width: 1 },
   axis: {
-    line: 'rgba(173, 173, 173, 0.25)',
-    label: '#adadad',
-    split: 'rgba(173, 173, 173, 0.12)',
+    line: 'rgba(76, 108, 140, 0.55)',
+    label: '#c6d4df',
+    split: 'rgba(76, 108, 140, 0.22)',
     splitType: 'dashed',
-    cursor: '#66c0f4',
+    cursor: '#06bfff',
   },
   tooltip: {
-    bg: '#232730',
-    border: 'rgba(173, 173, 173, 0.25)',
-    text: '#c6d4df',
-    muted: '#adadad',
+    bg: '#283645',
+    border: 'rgba(76, 108, 140, 0.55)',
+    text: '#ffffff',
+    muted: '#c6d4df',
     dotRadius: '50%',
   },
   markers: {
@@ -143,16 +142,16 @@ export const STEAM_THEME: ChartTheme = {
     peak: '#ff6b6b',
   },
   slider: {
-    border: 'rgba(173, 173, 173, 0.25)',
-    background: 'rgba(35, 39, 48, 0.6)',
-    filler: 'rgba(102, 192, 244, 0.14)',
-    trackLine: 'rgba(173, 173, 173, 0.2)',
-    trackArea: 'rgba(173, 173, 173, 0.06)',
+    border: 'rgba(76, 108, 140, 0.55)',
+    background: 'rgba(20, 31, 44, 0.75)',
+    filler: 'rgba(6, 191, 255, 0.14)',
+    trackLine: 'rgba(76, 108, 140, 0.45)',
+    trackArea: 'rgba(76, 108, 140, 0.1)',
     selectedLine: '#66c0f4',
-    selectedArea: 'rgba(102, 192, 244, 0.1)',
+    selectedArea: 'rgba(6, 191, 255, 0.12)',
     handle: '#66c0f4',
-    handleBorder: '#a4d4f0',
-    text: '#adadad',
+    handleBorder: '#06bfff',
+    text: '#c6d4df',
   },
 }
 

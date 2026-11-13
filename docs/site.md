@@ -5,12 +5,13 @@
 ## 配色
 
 - **有两个写入点，必须同步改。** 外壳走 `web/src/index.css` 的 `@theme`（`steam-*` token）；图表的 canvas 走 `components/MAUChart.tsx` 的 `STEAM_THEME` —— 后者是 TS 常量，**不读 CSS 变量**，改一边不会带动另一边。两处都对彼此写明了依赖注释
-- 当前色板是 Steam 经典深色 / 库：`#171a21` 主背景（页面与顶栏页尾同色）、`#232730` 卡片、`#292e37` 悬停 / 激活、`#adadad` 次要文字与描边、`#66c0f4` 高亮蓝
-- `blue-bright` / `blue-mid` / `blue-deep` / `green` / `text` **不在色板上**，是上一版保留的 Steam 强调色（hero 数字渐变、涨跌徽章要用）
-- `--color-steam-border` 与 `--color-steam-muted` 现在同值（都是 `#adadad`）。站内 border 用法几乎都带 `/50`；只有 `lab/LabApp.tsx` 里两处是全不透明
-- 图表里 `#2a3f5a` 系列的线已换成 `rgba(173, 173, 173, …)`（透明度 0.12–0.25）以配合新底色；**数据色不随色板变** —— 6 个月均值的黄、四个事件色、CS:GO 橙、历史峰值红都是语义色
+- 当前色板是 Steam 商店 / 现代深蓝梯：`#1b2838` 页面画布、`#141f2c` 顶栏与页尾、`#283645` 卡片 / tile、`#384959` 悬停 / 激活 / inset、`#4c6c8c` 描边、`#c6d4df` 正文与次要文字、`#ffffff` 标题 / 强调、`#66c0f4` 链接蓝
+- CTA 强调色采用 Steam 的两套电压：青蓝 `#06bfff` / `#1a9fff` / `#2d73ff`（hero 渐变、链接、交互），install lime `#a4d007`（正向涨跌与数据语义）。lime 不拿来做通用按钮色，避免和「安装 / Play」语义混淆
+- `--color-steam-border` 与 `--color-steam-muted` 不再同值：前者是 hairline `#4c6c8c`，后者是正文 slate `#c6d4df`。站内 border 用法几乎都带 `/50`；只有 `lab/LabApp.tsx` 里两处是全不透明
+- 负向涨跌用 `--color-steam-red`（`#ff9b9b`），不用 Tailwind 的 `red-400`：后者在 `#283645` 卡片上只有 4.46:1，`#ff9b9b` 在 tile 与 inset 上都过 4.5:1
+- 图表里原先 `#2a3f5a` 系列的线改为 `rgba(76, 108, 140, …)`（透明度 0.22–0.55）；**数据色不随色板变** —— 6 个月均值的黄、四个事件色、CS:GO 橙、历史峰值红都是语义色。图表轴标签用 `#c6d4df` 而不是更暗的 `#8b929a`，因为图表底色是 `#283645`，后者对比度不到 4.5:1
 - **hero 大数字的渐变还有第三个写入点：`index.css` 里的 `.hero-mau`。** 那行数字靠 `bg-clip-text` + `text-transparent` 把渐变"画进字形里"，Tailwind 生成的顺序是 `-webkit-background-clip` 在前、标准属性在后；只认前缀的 Blink 会把 `background-clip` 落回初始值 `border-box`，于是整行变成一个色块、数字看不见（Kiwi Browser on Android 就是这样，Chrome / Firefox 正常）。`.hero-mau` 补上前缀对，未分层所以压得住 `@layer utilities`。改这行数字的配色时别把它删了
-- `<meta name="theme-color">` 在两个 `web/*/index.html` 里是**手写**的，不归 `gen-seo.mjs` 管，换底色要一起改
+- `<meta name="theme-color">` 在两个 `web/*/index.html` 里是**手写**的，不归 `gen-seo.mjs` 管，换底色要一起改（当前 `#1b2838`）
 
 ## 显示名与数据键
 

@@ -1,27 +1,29 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Steam classic dark / Library palette.
-     #171a21 main background · #232730 card · #292e37 hover & active
-     #adadad secondary text & strokes · #66c0f4 signature blue.
+  /* Steam storefront / modern navy ladder.
+     #1b2838 canvas · #141f2c rail · #283645 tile · #384959 inset
+     #4c6c8c hairline · #c6d4df body slate · #ffffff emphasis
+     #66c0f4 link · #06bfff/#1a9fff/#2d73ff CTA cyan · #a4d007 install lime.
 
-     The blue tints (bright/mid/deep), the primary text tone and the green are
-     not on the card. They're kept from the previous palette so the hero's
-     gradient, the chart's accents and the growth badges stay in the same
-     family; see STEAM_THEME in components/MAUChart.tsx for the chart's side. */
-  --color-steam-nav: #171a21;
-  --color-steam-bg: #171a21;
-  --color-steam-card: #232730;
-  --color-steam-elevated: #292e37;
-  --color-steam-border: #adadad;
+     `muted` uses the subtitle slate rather than the dimmer #8b929a: the same
+     token sits on the tile (#283645) and inset (#384959), where #8b929a falls
+     below 4.5:1. The chart's palette is in STEAM_THEME
+     (components/MAUChart.tsx), which must be kept in step with this block. */
+  --color-steam-nav: #141f2c;
+  --color-steam-bg: #1b2838;
+  --color-steam-card: #283645;
+  --color-steam-elevated: #384959;
+  --color-steam-border: #4c6c8c;
   --color-steam-blue: #66c0f4;
-  --color-steam-blue-bright: #a4d4f0;
-  --color-steam-blue-mid: #3f9fe0;
-  --color-steam-blue-deep: #2f7cb5;
+  --color-steam-blue-bright: #06bfff;
+  --color-steam-blue-mid: #1a9fff;
+  --color-steam-blue-deep: #2d73ff;
   --color-steam-green: #a4d007;
-  --color-steam-text: #c6d4df;
-  --color-steam-muted: #adadad;
-  --color-steam-control: #292e37;
+  --color-steam-red: #ff9b9b;
+  --color-steam-text: #ffffff;
+  --color-steam-muted: #c6d4df;
+  --color-steam-control: #384959;
   --shadow-steam: 0 1px 3px rgb(0 0 0 / 0.3);
   --shadow-steam-lg: 0 4px 12px rgb(0 0 0 / 0.4);
   --font-sans: 'Motiva Sans', Arial, Helvetica, sans-serif;
@@ -56,9 +58,9 @@ body {
   background: var(--color-steam-nav);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-steam-border);
+  background: var(--color-steam-elevated);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-steam-control);
+  background: var(--color-steam-border);
 }
